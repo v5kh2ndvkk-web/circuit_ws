@@ -1,0 +1,2384 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>電路學生工作紙｜中六級物理科</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  <!-- MathJax 用於渲染物理公式（local fontCache 確保匯出 PDF 時所有公式符號獨立完整） -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      },
+      svg: { fontCache: 'local' }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <!-- html2pdf.js 用於預覽環境直接匯出 A4 PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+
+  <style>
+    body {
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+
+    /* 學生填寫橫線樣式 */
+    .inline-blank {
+      border: none;
+      border-bottom: 1.5px solid #475569;
+      background: transparent;
+      padding: 1px 4px;
+      text-align: center;
+      color: #1d4ed8;
+      font-weight: 700;
+      outline: none;
+      border-radius: 0;
+    }
+    .inline-blank:focus {
+      border-bottom-color: #2563eb;
+      background-color: #eff6ff;
+    }
+
+    /* 修正 Tailwind CSS Preflight 將 MathJax 行內公式 SVG 轉為 block 導致的強制斷行錯位 */
+    mjx-container {
+      display: inline-block !important;
+      margin: 0 1px !important;
+      vertical-align: middle !important;
+    }
+    mjx-container svg {
+      display: inline !important;
+      vertical-align: middle !important;
+    }
+    mjx-container[display="true"] {
+      display: block !important;
+      margin: 0.5rem 0 !important;
+    }
+    mjx-container[display="true"] svg {
+      display: block !important;
+      margin: 0 auto !important;
+    }
+
+    /* 圈選題（使用 inline-block 確保匯出 PDF 與網頁排版穩定） */
+    .choice-group {
+      display: inline-block;
+      vertical-align: middle;
+      padding: 1px 6px;
+      margin: 1px 2px;
+      border-radius: 6px;
+      background-color: #ffffff;
+      border: 1px solid #94a3b8;
+      font-weight: 600;
+      line-height: 1.45;
+    }
+    .choice-opt {
+      display: inline-block;
+      cursor: pointer;
+      padding: 0 5px;
+      border-radius: 9999px;
+      border: 1.5px solid transparent;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .choice-opt:hover {
+      background-color: #e2e8f0;
+    }
+    .choice-opt.circled {
+      border-color: #dc2626;
+      color: #dc2626;
+      background-color: #fef2f2;
+    }
+    .choice-sep {
+      display: inline-block;
+      color: #94a3b8;
+      font-weight: 400;
+      user-select: none;
+    }
+
+    /* LED 光條互動樣式 */
+    .led-strip {
+      cursor: pointer;
+      transition: stroke 0.25s ease, filter 0.25s ease, opacity 0.25s ease;
+    }
+    .led-strip:hover {
+      filter: brightness(1.08) drop-shadow(0 0 4px rgba(59, 130, 246, 0.55));
+    }
+
+    /* 教師參考答案預設隱藏 */
+    .teacher-key {
+      display: none;
+    }
+    .teacher-key.visible {
+      display: block;
+    }
+
+    /* PDF 匯出專用容器排版（確保 A4 緊湊清晰、無冗餘空白與跨頁截斷） */
+    .pdf-export-clone {
+      width: 760px !important;
+      max-width: 760px !important;
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      padding: 16px 20px !important;
+      margin: 0 !important;
+      box-shadow: none !important;
+      border: none !important;
+      font-size: 12.5px !important;
+      line-height: 1.5 !important;
+    }
+    .pdf-export-clone .task-card {
+      padding: 12px 14px !important;
+      margin-bottom: 12px !important;
+      border: 1px solid #cbd5e1 !important;
+      box-shadow: none !important;
+    }
+    .pdf-export-clone .diagram-box {
+      background-color: #ffffff !important;
+      border: 1px solid #cbd5e1 !important;
+      padding: 6px !important;
+    }
+    .pdf-blank-line {
+      display: inline-block;
+      min-width: 44px;
+      height: 1.25em;
+      border-bottom: 1.5px solid #334155;
+      text-align: center;
+      color: #1d4ed8;
+      font-weight: 700;
+      padding: 0 4px;
+      vertical-align: baseline;
+    }
+    .pdf-check-symbol {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-right: 2px;
+      vertical-align: middle;
+    }
+
+    /* 列印鎖定狀態防護（防止學生透過瀏覽器選單直接列印） */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background-color: #ffffff !important;
+      }
+      body.print-locked #worksheetMain {
+        display: none !important;
+      }
+      body.print-locked::after {
+        content: "🔒 列印功能目前已鎖定，請由教師輸入密碼解鎖後再列印。 / Printing is locked. Please ask the teacher to unlock.";
+        display: block;
+        text-align: center;
+        font-size: 15pt;
+        font-weight: 700;
+        color: #334155;
+        padding: 40mm 10mm;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-12 print-locked">
+
+  <!-- 頂部教師控制工具列（明亮淺色主題，列印時自動隱藏） -->
+  <header class="no-print sticky top-0 z-40 bg-white/95 backdrop-blur text-slate-900 border-b border-slate-200 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-2.5">
+        <span class="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-sm">PHY</span>
+        <div>
+          <h1 data-i18n="hdr_title" class="text-sm sm:text-base font-extrabold leading-tight text-slate-900">電路學生工作紙｜中六級物理科</h1>
+          <p data-i18n="hdr_sub" class="text-xs text-slate-500">電勢等勢分色、電壓判斷與歐姆定律應用</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- 語言切換按鈕（繁體中文 / English） -->
+        <button id="btnToggleLang" type="button"
+          class="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-sm">
+          <span>🌐</span>
+          <span id="langBtnText">English</span>
+        </button>
+
+        <button id="btnDemoColors" type="button"
+          class="px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-sm">
+          <span id="demoAllBtnText">💡 演示全部 LED 顏色</span>
+        </button>
+
+        <button id="btnToggleKey" type="button"
+          class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-sm">
+          <span id="keyBtnText">🔒 答案已鎖定（教師解鎖）</span>
+        </button>
+
+        <button id="btnReLock" type="button"
+          class="hidden px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold text-xs sm:text-sm transition flex items-center gap-1 shadow-sm">
+          <span id="reLockKeyText">🔒 鎖定答案</span>
+        </button>
+
+        <button id="btnPrint" type="button"
+          class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-sm">
+          <span id="printBtnText">🔒 列印已鎖定（教師解鎖）</span>
+        </button>
+
+        <button id="btnReLockPrint" type="button"
+          class="hidden px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold text-xs sm:text-sm transition flex items-center gap-1 shadow-sm">
+          <span id="reLockPrintText">🔒 鎖定列印</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 提示訊息框 -->
+  <div id="toastMsg" class="no-print fixed bottom-5 right-5 z-50 hidden px-4 py-2.5 rounded-xl bg-white text-slate-900 text-sm font-bold shadow-xl border border-slate-300 transition-opacity"></div>
+
+  <!-- 教師密碼解鎖視窗（支援解鎖答案與解鎖列印） -->
+  <div id="unlockModal" class="no-print fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/45 backdrop-blur-xs p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-sm w-full p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 id="unlockModalTitle" class="text-base font-bold text-slate-900 flex items-center gap-2">
+          <span>🔒 教師權限解鎖</span>
+        </h3>
+        <button id="btnCloseModal" type="button" class="text-slate-400 hover:text-slate-600 text-lg font-bold px-1.5">✕</button>
+      </div>
+      <p id="unlockModalDesc" class="text-xs sm:text-sm text-slate-600">
+        為確保建構主義課堂探索效果，參考答案已預設鎖定。請輸入教師密碼（預設：1124）以解鎖功能：
+      </p>
+      <div>
+        <input id="pinInput" type="password" inputmode="numeric" maxlength="8" placeholder="請輸入教師密碼"
+          class="w-full px-3 py-2 rounded-xl border border-slate-300 text-center text-lg tracking-widest font-bold text-slate-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200" />
+        <p id="pinError" class="hidden text-xs text-rose-600 font-semibold mt-1.5 text-center">密碼不正確，請重新輸入。</p>
+      </div>
+      <div class="flex items-center justify-end gap-2 pt-1">
+        <button id="btnCancelUnlock" type="button" class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold transition">
+          取消
+        </button>
+        <button id="btnConfirmUnlock" type="button" class="px-4 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-semibold transition shadow-sm">
+          確認解鎖
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 列印 / 匯出 PDF 選擇視窗（解鎖後顯示） -->
+  <div id="printModal" class="no-print fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/45 backdrop-blur-xs p-4">
+    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-md w-full p-5 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+        <h3 data-i18n="print_modal_title" class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+          <span>🖨️ 匯出「電路學生工作紙」</span>
+        </h3>
+        <button id="btnClosePrintModal" type="button" class="text-slate-400 hover:text-slate-600 text-lg font-bold px-1.5">✕</button>
+      </div>
+      <p data-i18n="print_modal_desc" class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+        教師權限已解鎖。請選擇匯出或列印方式（所有電路圖、公式及已填寫答案均會完整保留）：
+      </p>
+      <div class="space-y-2.5">
+        <button id="btnDirectPdf" type="button" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-sm">
+          <span data-i18n="btn_direct_pdf">📄 一鍵直接下載 A4 PDF 檔案（推薦）</span>
+        </button>
+        <button id="btnSystemPrint" type="button" class="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2">
+          <span data-i18n="btn_sys_print">🖨️ 呼叫系統列印對話框</span>
+        </button>
+        <button id="btnDownloadStandalone" type="button" class="w-full py-2.5 px-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2">
+          <span data-i18n="btn_dl_html">🌐 下載獨立可列印網頁（.html）</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- A4 工作紙主體 -->
+  <main id="worksheetMain" class="sheet-container max-w-5xl mx-auto my-6 bg-white rounded-2xl shadow-lg border border-slate-200 p-6 sm:p-10">
+
+    <!-- 工作紙標題與學生資料欄 -->
+    <div class="border-b-2 border-slate-800 pb-4 mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-3">
+        <div>
+          <span data-i18n="ws_badge" class="inline-block px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold tracking-wide mb-1">
+            HKDSE 中六級物理科｜概念重構探索工作紙
+          </span>
+          <h1 data-i18n="ws_title" class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            電路學生工作紙
+          </h1>
+        </div>
+        <div data-i18n="ws_meta" class="text-xs sm:text-sm text-slate-600 font-semibold">
+          日期：24 / 11 / 2026 ｜ 班別人數：中六（17 人）
+        </div>
+      </div>
+
+      <p data-i18n="ws_topic" class="text-sm sm:text-base font-bold text-slate-800 mb-4">
+        課題：電路分析重構——串／並聯電勢分佈、電壓判斷與歐姆定律應用
+      </p>
+
+      <!-- 學生資料填寫格 -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm bg-slate-50 p-3 rounded-xl border border-slate-200">
+        <div class="flex items-center gap-1.5">
+          <span data-i18n="lbl_name" class="font-semibold text-slate-700 whitespace-nowrap">姓名：</span>
+          <input type="text" data-i18n-placeholder="ph_name" class="inline-blank w-full" placeholder="填寫姓名" />
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span data-i18n="lbl_class" class="font-semibold text-slate-700 whitespace-nowrap">班別：</span>
+          <input id="inpClass" type="text" class="inline-blank w-full" value="中六" />
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span data-i18n="lbl_no" class="font-semibold text-slate-700 whitespace-nowrap">學號：</span>
+          <input type="text" class="inline-blank w-full" placeholder="( 01–17 )" />
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span data-i18n="lbl_group" class="font-semibold text-slate-700 whitespace-nowrap">組別：</span>
+          <input type="text" data-i18n-placeholder="ph_group" class="inline-blank w-full" placeholder="第 __ 組" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== 階段 1｜熱身前測（0–3 分鐘） ==================== -->
+    <section class="task-card rounded-xl border border-slate-300 p-4 sm:p-5 mb-6 bg-slate-50/50">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <h2 class="text-base sm:text-lg font-bold text-slate-900 flex items-start sm:items-center gap-2">
+          <span data-i18n="s1_badge" class="shrink-0 whitespace-nowrap px-2.5 py-0.5 rounded-lg bg-slate-800 text-white text-xs font-bold">階段 1｜熱身前測</span>
+          <span data-i18n="s1_title">閉合電路構成、大富翁「等勢」類比與概念診斷（3 分鐘）</span>
+        </h2>
+        <span data-i18n="s1_time" class="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">Engage｜0–3 分鐘</span>
+      </div>
+
+      <!-- 大富翁（Monopoly）電路類比互動區 -->
+      <div class="q-block p-3.5 rounded-xl bg-amber-50/60 border border-amber-200 mb-3 text-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+          <p data-i18n="s1_mono_hdr" class="font-bold text-amber-950">🎲【概念喚醒：大富翁電路類比】對照下圖並完成填空：</p>
+          <button type="button" onclick="toggleSingleAnswer(this)" class="no-print shrink-0 text-xs px-2.5 py-1 rounded bg-slate-200 text-slate-500 font-semibold transition">🔒 答案已鎖</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+          <!-- 左側互動 SVG：簡單閉合電路 × 大富翁棋盤類比（已修正電阻 R 與左右導線完美對齊） -->
+          <div class="diagram-box lg:col-span-6 bg-white border border-amber-200 rounded-xl p-2.5 flex flex-col items-center">
+            <div class="w-full flex items-center justify-between px-1 mb-1">
+              <span data-i18n="s1_svg_cap" class="text-xs font-bold text-amber-900">圖解：大富翁棋盤 × 電勢變化對照</span>
+              <button type="button" onclick="demoMonopoly()" data-i18n="s1_btn_demo" class="no-print text-xs px-2.5 py-0.5 rounded bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold transition shadow-sm">
+                演示等勢色區
+              </button>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 194" class="w-full max-w-[350px] h-auto select-none">
+              <!-- 棋盤底色 -->
+              <rect x="26" y="44" width="308" height="114" rx="14" fill="#fefce8" stroke="#fde047" stroke-width="1.5" />
+
+              <!-- 高電勢等勢光條（粉紅：電池正極出發至電阻 R 左側 x=145） -->
+              <polyline id="mono-led-high" data-monoled="high" data-state="0" points="145,158 36,158 36,54 142,54"
+                fill="none" stroke="#cbd5e1" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+
+              <!-- 低電勢等勢光條（藍色：電阻 R 右側 x=215 回到電池負極） -->
+              <polyline id="mono-led-low" data-monoled="low" data-state="0" points="218,54 324,54 324,158 215,158"
+                fill="none" stroke="#cbd5e1" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+
+              <!-- 電路黑線骨架（完美對齊 x=145 與 x=215） -->
+              <polyline points="145,158 36,158 36,54 145,54" fill="none" stroke="#0f172a" stroke-width="2.4" />
+              <polyline points="215,54 324,54 324,158 215,158" fill="none" stroke="#0f172a" stroke-width="2.4" />
+
+              <!-- 電流方向箭頭 -->
+              <polygon points="36,94 31,104 41,104" fill="#be185d" />
+              <text data-i18n-svg="svg_mono_charge" x="18" y="104" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#be185d">電荷</text>
+              <polygon points="324,110 319,100 329,100" fill="#1d4ed8" />
+              <text data-i18n-svg="svg_mono_return" x="342" y="106" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#1d4ed8">回程</text>
+
+              <!-- 底部：起點 GO = 電池 (12 V)，中心 x=180 -->
+              <rect x="108" y="140" width="144" height="45" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.8" />
+              <line x1="145" y1="158" x2="170" y2="158" stroke="#0f172a" stroke-width="2.4" />
+              <line x1="170" y1="146" x2="170" y2="170" stroke="#0f172a" stroke-width="2.6" />
+              <line x1="186" y1="151" x2="186" y2="165" stroke="#0f172a" stroke-width="3.6" />
+              <line x1="186" y1="158" x2="215" y2="158" stroke="#0f172a" stroke-width="2.4" />
+              <text x="155" y="149" font-size="9.5" font-weight="bold" fill="#dc2626">+12V</text>
+              <text x="198" y="149" font-size="9.5" font-weight="bold" fill="#2563eb">−0V</text>
+              <text data-i18n-svg="svg_mono_go" x="180" y="180" text-anchor="middle" font-size="9" font-weight="bold" fill="#92400e">🚩 起點「GO」＝ 電池 (12 V)</text>
+
+              <!-- 左上標籤：空地（等勢 12 V） -->
+              <rect x="28" y="8" width="142" height="32" rx="6" fill="#fdf2f8" stroke="#f9a8d4" stroke-width="1.2" />
+              <text data-i18n-svg="svg_mono_wire1" x="99" y="21" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#be185d">🛣️ 空地（理想導線）</text>
+              <text data-i18n-svg="svg_mono_eq12" x="99" y="34" text-anchor="middle" font-size="8.2" font-weight="bold" fill="#9d174d">處處 12 V (等勢 ΔV = 0)</text>
+
+              <!-- 頂部中央：電阻 R（交租物業），對齊 x=145..215，中心 x=180 -->
+              <rect x="145" y="35" width="70" height="38" rx="6" fill="#ffffff" stroke="#0f172a" stroke-width="2.2" />
+              <rect x="145" y="35" width="70" height="10" rx="4" fill="#ef4444" />
+              <text data-i18n-svg="svg_mono_res" x="180" y="58" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#0f172a">電阻 R</text>
+              <text data-i18n-svg="svg_mono_rent" x="180" y="69" text-anchor="middle" font-size="8" font-weight="bold" fill="#b91c1c">🏠 物業交租</text>
+              <text data-i18n-svg="svg_mono_drop" x="180" y="85" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#dc2626">消耗電勢能 (12V → 0V)</text>
+
+              <!-- 右下標籤：空地（等勢 0 V） -->
+              <rect x="184" y="102" width="140" height="32" rx="6" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.2" />
+              <text data-i18n-svg="svg_mono_wire2" x="254" y="115" text-anchor="middle" font-size="8.5" font-weight="bold" fill="#1d4ed8">🛣️ 空地（理想導線）</text>
+              <text data-i18n-svg="svg_mono_eq0" x="254" y="128" text-anchor="middle" font-size="8.2" font-weight="bold" fill="#1e40af">處處 0 V (等勢 ΔV = 0)</text>
+            </svg>
+          </div>
+
+          <!-- 右側精簡引導填空 -->
+          <div class="lg:col-span-6 space-y-2 text-xs sm:text-sm text-slate-800 leading-relaxed">
+            <p>
+              • <span data-i18n="s1_m1"><strong>電池作用（起點 GO）：</strong>為電荷提供</span>
+              <span class="choice-group"><span data-i18n="c_pe" class="choice-opt">電勢能</span><span class="choice-sep">/</span><span data-i18n="c_mkq" class="choice-opt">製造新電荷</span></span>。
+            </p>
+            <p>
+              • <span data-i18n="s1_m2"><strong>等勢路段（空地導線）：</strong>凡由理想導線直接相連、中間未跨過任何電阻或電源的路段，電勢相同（<strong>等勢</strong>），該路段電壓 $\Delta V =$</span>
+              <input type="text" class="inline-blank w-10" /> $\text{V}$<span data-i18n="period">。</span>
+            </p>
+            <p>
+              • <span data-i18n="s1_m3"><strong>歸零終點（回到負極）：</strong>電荷經電阻交租消耗電勢能後，回到電池負極時的電勢必降至</span>
+              <input type="text" class="inline-blank w-10" /> $\text{V}$<span data-i18n="period">。</span>
+            </p>
+            <div data-i18n="s1_mono_key" class="teacher-key mt-1.5 p-2 rounded bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">
+              <strong>參考答案：</strong> <strong>電勢能</strong>；等勢路段電壓 $\Delta V = \mathbf{0}\text{ V}$；回到負極降至 $\mathbf{0}\text{ V}$。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 兩題快速概念診斷選擇題 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+        <!-- 第 1 題 -->
+        <div class="q-block p-3 rounded-lg bg-white border border-slate-200">
+          <div class="flex items-start justify-between gap-2 mb-1.5">
+            <p data-i18n="s1_q1" class="font-semibold text-slate-800">1. 簡單串聯電路中，電流流經電阻器前後的大小有何關係？</p>
+            <button type="button" onclick="toggleSingleAnswer(this)" class="no-print shrink-0 text-xs px-2 py-0.5 rounded bg-slate-200 text-slate-500 font-semibold transition">🔒 答案已鎖</button>
+          </div>
+          <div class="space-y-1 pl-1 text-xs sm:text-sm">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="pre1" class="accent-indigo-600" />
+              <span data-i18n="s1_q1_a"><strong>A.</strong> 經過電阻器後，電流會變小</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="pre1" class="accent-indigo-600" />
+              <span data-i18n="s1_q1_b"><strong>B.</strong> 經過電阻器後，電流保持不變</span>
+            </label>
+          </div>
+          <div data-i18n="s1_q1_key" class="teacher-key mt-2 p-2 rounded bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">
+            <strong>答案：B</strong>（電荷守恆，串聯路徑中電流處處相等；被消耗的是電勢能而非電流。）
+          </div>
+        </div>
+
+        <!-- 第 2 題 -->
+        <div class="q-block p-3 rounded-lg bg-white border border-slate-200">
+          <div class="flex items-start justify-between gap-2 mb-1.5">
+            <p data-i18n="s1_q2" class="font-semibold text-slate-800">2. 若理想導線（$R = 0$）中有穩恆電流流過，導線兩端電勢差是多少？</p>
+            <button type="button" onclick="toggleSingleAnswer(this)" class="no-print shrink-0 text-xs px-2 py-0.5 rounded bg-slate-200 text-slate-500 font-semibold transition">🔒 答案已鎖</button>
+          </div>
+          <div class="space-y-1 pl-1 text-xs sm:text-sm">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="pre2" class="accent-indigo-600" />
+              <span data-i18n="s1_q2_a"><strong>A.</strong> 大於 $0\text{ V}$（需要電壓推動電流）</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="pre2" class="accent-indigo-600" />
+              <span data-i18n="s1_q2_b"><strong>B.</strong> 等於 $0\text{ V}$（整段導線為等勢）</span>
+            </label>
+          </div>
+          <div data-i18n="s1_q2_key" class="teacher-key mt-2 p-2 rounded bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">
+            <strong>答案：B</strong>（根據 $V = IR$，理想導線 $R = 0$，故電勢差 $V = 0\text{ V}$，整段導線為等勢。）
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 階段 2｜任務一（3–12 分鐘） ==================== -->
+    <section class="task-card rounded-xl border border-slate-300 p-4 sm:p-5 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2.5 mb-4">
+        <h2 class="text-base sm:text-lg font-bold text-indigo-900 flex items-start sm:items-center gap-2">
+          <span data-i18n="s2_badge" class="shrink-0 whitespace-nowrap px-2.5 py-0.5 rounded-lg bg-indigo-600 text-white text-xs font-bold">階段 2｜任務一</span>
+          <span data-i18n="s2_title">從串聯到並聯的「三色 LED 等勢地圖」（POE 探索・9 分鐘）</span>
+        </h2>
+        <span data-i18n="s2_time" class="text-xs font-semibold text-indigo-700 bg-indigo-50 px-2.5 py-0.5 rounded-full">Explore｜3–12 分鐘・點擊 LED 光條可循環切換顏色</span>
+      </div>
+
+      <!-- Part A: 教具 ① 串聯電路 -->
+      <div class="q-block mb-6 pb-5 border-b border-dashed border-slate-300">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <h3 data-i18n="s2_pa_title" class="text-sm sm:text-base font-bold text-slate-800">
+            Part A：教具 ① 串聯電路演示（觀察導線上的 LED 顏色變化）
+          </h3>
+          <button type="button" onclick="toggleSingleAnswer(this)" class="no-print text-xs px-2.5 py-1 rounded bg-slate-200 text-slate-500 font-semibold transition">🔒 答案已鎖</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+          <!-- 左側互動 SVG 電路圖 ① -->
+          <div class="diagram-box lg:col-span-5 bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col items-center">
+            <div class="w-full flex items-center justify-between px-1 mb-1">
+              <span data-i18n="s2_pa_svg_cap" class="text-xs font-bold text-slate-700">教具 ① 串聯電路</span>
+              <button type="button" onclick="demoCircuit1()" data-i18n="btn_demo_led" class="no-print text-xs px-2.5 py-0.5 rounded bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold transition shadow-sm">
+                演示 LED 顏色
+              </button>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 330 270" class="w-full max-w-[300px] h-auto select-none">
+              <polyline points="195,230 265,230 265,45 195,45" fill="none" stroke="#1e293b" stroke-width="2.5" />
+              <polyline id="led1" data-led="1" data-state="0" points="200,222 257,222 257,53 200,53"
+                fill="none" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+              <text x="272" y="140" font-size="13" font-weight="bold" fill="#0f172a">LED 1</text>
+              <text x="272" y="156" font-size="9.5" fill="#64748b" id="led1-label">(未亮)</text>
+
+              <rect x="125" y="28" width="70" height="34" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="2.5" />
+              <text x="160" y="50" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f172a">R₁</text>
+
+              <polyline points="125,45 65,45 65,105" fill="none" stroke="#1e293b" stroke-width="2.5" />
+              <polyline id="led2" data-led="2" data-state="0" points="120,53 73,53 73,100"
+                fill="none" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+              <text x="10" y="75" font-size="13" font-weight="bold" fill="#0f172a">LED 2</text>
+              <text x="10" y="91" font-size="9.5" fill="#64748b" id="led2-label">(未亮)</text>
+
+              <rect x="47" y="105" width="36" height="60" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="2.5" />
+              <text x="65" y="140" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f172a">R₂</text>
+
+              <polyline points="65,165 65,230 125,230" fill="none" stroke="#1e293b" stroke-width="2.5" />
+              <polyline id="led3" data-led="3" data-state="0" points="73,170 73,222 120,222"
+                fill="none" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+              <text x="10" y="200" font-size="13" font-weight="bold" fill="#0f172a">LED 3</text>
+              <text x="10" y="216" font-size="9.5" fill="#64748b" id="led3-label">(未亮)</text>
+
+              <line x1="125" y1="230" x2="152" y2="230" stroke="#0f172a" stroke-width="2.5" />
+              <line x1="152" y1="220" x2="152" y2="240" stroke="#0f172a" stroke-width="3.5" />
+              <line x1="168" y1="212" x2="168" y2="248" stroke="#0f172a" stroke-width="2.5" />
+              <line x1="168" y1="230" x2="195" y2="230" stroke="#0f172a" stroke-width="2.5" />
+              <text x="176" y="213" font-size="12" font-weight="bold" fill="#dc2626">+</text>
+              <text x="140" y="213" font-size="13" font-weight="bold" fill="#2563eb">−</text>
+              <text data-i18n-svg="svg_cell" x="160" y="262" text-anchor="middle" font-size="13" font-weight="bold" fill="#0f172a">電池</text>
+            </svg>
+          </div>
+
+          <!-- 右側 POE 引導填空 -->
+          <div class="lg:col-span-7 space-y-3 text-sm">
+            <div class="p-3 rounded-lg bg-amber-50/70 border border-amber-200 space-y-1.5">
+              <p data-i18n="s2_poe_p_hdr" class="font-bold text-amber-900">1.【預測 Predict】通電前，圈出你的預測：</p>
+              <p class="text-slate-800">
+                <span data-i18n="s2_poe_p1">三段導線上的 LED 顏色</span>
+                <span class="choice-group"><span data-i18n="c_allsame" class="choice-opt">全部相同</span><span class="choice-sep">/</span><span data-i18n="c_diff" class="choice-opt">不相同</span></span><span data-i18n="s2_poe_p2">，因為經過電阻時</span>
+                <span class="choice-group"><span data-i18n="c_curdec" class="choice-opt">電流會變小</span><span class="choice-sep">/</span><span data-i18n="c_potdec" class="choice-opt">電勢會下降</span><span class="choice-sep">/</span><span data-i18n="c_nochange" class="choice-opt">沒有變化</span></span><span data-i18n="period">。</span>
+              </p>
+            </div>
+
+            <div class="p-3 rounded-lg bg-sky-50/70 border border-sky-200 space-y-1.5">
+              <p data-i18n="s2_poe_o_hdr" class="font-bold text-sky-900">2.【觀察 Observe】通電後，圈出各段 LED 的實際顏色：</p>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 text-xs sm:text-sm">
+                <div>LED 1：<span class="choice-group"><span data-i18n="c_pink" class="choice-opt">粉紅</span><span class="choice-sep">/</span><span data-i18n="c_yellow" class="choice-opt">黃</span><span class="choice-sep">/</span><span data-i18n="c_blue" class="choice-opt">藍</span></span></div>
+                <div>LED 2：<span class="choice-group"><span data-i18n="c_pink" class="choice-opt">粉紅</span><span class="choice-sep">/</span><span data-i18n="c_yellow" class="choice-opt">黃</span><span class="choice-sep">/</span><span data-i18n="c_blue" class="choice-opt">藍</span></span></div>
+                <div>LED 3：<span class="choice-group"><span data-i18n="c_pink" class="choice-opt">粉紅</span><span class="choice-sep">/</span><span data-i18n="c_yellow" class="choice-opt">黃</span><span class="choice-sep">/</span><span data-i18n="c_blue" class="choice-opt">藍</span></span></div>
+              </div>
+              <div class="pt-1 text-xs sm:text-sm">
+                <span data-i18n="s2_poe_o_same" class="font-semibold">同一段導線內：</span>
+                <span class="choice-group"><span data-i18n="c_uniform" class="choice-opt">整段完全同色</span><span class="choice-sep">/</span><span data-i18n="c_gradual" class="choice-opt">由一端向另一端漸變</span></span>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-lg bg-indigo-50/70 border border-indigo-200 space-y-1.5 leading-relaxed">
+              <p data-i18n="s2_poe_e_hdr" class="font-bold text-indigo-900">3.【解釋 Explain】圈出正確詞語完成歸納：</p>
+              <p>
+                • <span data-i18n="s2_poe_e1a">同一段理想導線呈單一顏色，代表整段處於相同的</span>
+                <span class="choice-group"><span data-i18n="c_current" class="choice-opt">電流</span><span class="choice-sep">/</span><span data-i18n="c_potential" class="choice-opt">電勢</span></span><span data-i18n="s2_poe_e1b">，稱為<strong>等勢（Equipotential）</strong>。</span>
+              </p>
+              <p>
+                • <span data-i18n="s2_poe_e2a">顏色只在跨過</span>
+                <span class="choice-group"><span data-i18n="c_wire" class="choice-opt">導線</span><span class="choice-sep">/</span><span data-i18n="c_resistor" class="choice-opt">電阻</span></span>
+                <span data-i18n="s2_poe_e2b">時改變，故<strong>兩種顏色之差</strong>代表兩點間的</span>
+                <span class="choice-group"><span data-i18n="c_curmag" class="choice-opt">電流大小</span><span class="choice-sep">/</span><span data-i18n="c_pd" class="choice-opt">電勢差</span></span>（p.d.）<span data-i18n="period">。</span>
+              </p>
+              <p>
+                • <span data-i18n="s2_poe_e3">將理想伏特計並聯接在 <code class="font-mono font-bold">LED 1</code> 頭尾兩點上，讀數為</span>
+                <span class="choice-group"><span class="choice-opt">0 V</span><span class="choice-sep">/</span><span data-i18n="c_emf" class="choice-opt">電源電壓</span></span><span data-i18n="period">。</span>
+              </p>
+              <div data-i18n="s2_pa_key" class="teacher-key mt-2 p-2 rounded bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">
+                <strong>教師參考答案：</strong> 觀察：LED 1（粉紅）、LED 2（黃）、LED 3（藍），整段完全同色。解釋：<strong>電勢</strong>；<strong>電阻</strong>；<strong>電勢差</strong>；<strong>0 V</strong>。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Part B: 教具 ② 並聯電路 -->
+      <div class="q-block">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <h3 data-i18n="s2_pb_title" class="text-sm sm:text-base font-bold text-slate-800">
+            Part B：教具 ② 並聯電路（小組白板節點分色挑戰）
+          </h3>
+          <button type="button" onclick="toggleSingleAnswer(this)" class="no-print text-xs px-2.5 py-1 rounded bg-slate-200 text-slate-500 font-semibold transition">🔒 答案已鎖</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+          <!-- 左側互動 SVG 電路圖 ②（已加上標準節點黑點） -->
+          <div class="diagram-box lg:col-span-5 bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col items-center">
+            <div class="w-full flex items-center justify-between px-1 mb-1">
+              <span data-i18n="s2_pb_svg_cap" class="text-xs font-bold text-slate-700">教具 ② 並聯電路</span>
+              <button type="button" onclick="demoCircuit2()" data-i18n="btn_demo_led" class="no-print text-xs px-2.5 py-0.5 rounded bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold transition shadow-sm">
+                演示 LED 顏色
+              </button>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 345 280" class="w-full max-w-[315px] h-auto select-none">
+              <polyline points="205,245 275,245 275,45 245,45" fill="none" stroke="#1e293b" stroke-width="2.5" />
+              <line x1="275" y1="135" x2="210" y2="135" stroke="#1e293b" stroke-width="2.5" />
+              <circle cx="275" cy="135" r="3.5" fill="#0f172a" />
+              <polyline id="led4" data-led="4" data-state="0" points="210,237 267,237 267,53 248,53"
+                fill="none" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+              <line id="led4-branch" data-led="4" x1="267" y1="128" x2="214" y2="128" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round" class="led-strip" />
+              <text x="283" y="105" font-size="13" font-weight="bold" fill="#0f172a">LED 4</text>
+              <text x="283" y="121" font-size="9.5" fill="#64748b" id="led4-label">(未亮)</text>
+
+              <rect x="190" y="29" width="55" height="32" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="2.5" />
+              <text x="217.5" y="50" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f172a">R₂</text>
+
+              <line x1="150" y1="45" x2="190" y2="45" stroke="#1e293b" stroke-width="2.5" />
+              <line id="led5" data-led="5" data-state="0" x1="154" y1="53" x2="186" y2="53"
+                stroke="#cbd5e1" stroke-width="7" stroke-linecap="round" class="led-strip" />
+              <text x="170" y="18" text-anchor="middle" font-size="12" font-weight="bold" fill="#0f172a">LED 5</text>
+              <text x="170" y="72" text-anchor="middle" font-size="9.5" fill="#64748b" id="led5-label">(未亮)</text>
+
+              <rect x="95" y="29" width="55" height="32" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="2.5" />
+              <text x="122.5" y="50" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f172a">R₃</text>
+
+              <rect x="130" y="117" width="80" height="36" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="2.5" />
+              <text x="170" y="140" text-anchor="middle" font-size="14" font-weight="bold" fill="#0f172a">R₁</text>
+
+              <polyline points="95,45 65,45 65,245 135,245" fill="none" stroke="#1e293b" stroke-width="2.5" />
+              <line x1="65" y1="135" x2="130" y2="135" stroke="#1e293b" stroke-width="2.5" />
+              <circle cx="65" cy="135" r="3.5" fill="#0f172a" />
+              <polyline id="led6" data-led="6" data-state="0" points="92,53 73,53 73,237 130,237"
+                fill="none" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+              <line id="led6-branch" data-led="6" x1="73" y1="128" x2="126" y2="128" stroke="#cbd5e1" stroke-width="7" stroke-linecap="round" class="led-strip" />
+              <text x="8" y="160" font-size="13" font-weight="bold" fill="#0f172a">LED 6</text>
+              <text x="8" y="176" font-size="9.5" fill="#64748b" id="led6-label">(未亮)</text>
+
+              <line x1="135" y1="245" x2="162" y2="245" stroke="#0f172a" stroke-width="2.5" />
+              <line x1="162" y1="235" x2="162" y2="255" stroke="#0f172a" stroke-width="3.5" />
+              <line x1="178" y1="227" x2="178" y2="263" stroke="#0f172a" stroke-width="2.5" />
+              <line x1="178" y1="245" x2="205" y2="245" stroke="#0f172a" stroke-width="2.5" />
+              <text x="186" y="229" font-size="12" font-weight="bold" fill="#dc2626">+</text>
+              <text x="150" y="229" font-size="13" font-weight="bold" fill="#2563eb">−</text>
+              <text data-i18n-svg="svg_cell" x="170" y="274" text-anchor="middle" font-size="13" font-weight="bold" fill="#0f172a">電池</text>
+            </svg>
+          </div>
+
+          <!-- 右側表格與視覺等勢證明 -->
+          <div class="lg:col-span-7 space-y-3 text-sm">
+            <p data-i18n="s2_pb_q1" class="font-semibold text-slate-800">1.【小組白板預測與實測】圈出 <code class="font-mono">LED 4</code>、<code class="font-mono">LED 5</code>、<code class="font-mono">LED 6</code> 的顏色及電勢高低：</p>
+            <div class="overflow-x-auto">
+              <table class="w-full border-collapse border border-slate-300 text-xs sm:text-sm">
+                <thead>
+                  <tr class="bg-slate-100 text-slate-800">
+                    <th data-i18n="th_seg" class="border border-slate-300 p-2 text-left">導線段</th>
+                    <th data-i18n="th_pred" class="border border-slate-300 p-2 text-center">預測顏色（圈選）</th>
+                    <th data-i18n="th_obs" class="border border-slate-300 p-2 text-center">實測顏色（圈選）</th>
+                    <th data-i18n="th_pot" class="border border-slate-300 p-2 text-center">電勢高低</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="border border-slate-300 p-2 font-bold">LED 4</td>
+                    <td class="border border-slate-300 p-1.5 text-center"><span class="choice-group"><span data-i18n="c_pink" class="choice-opt">粉紅</span><span class="choice-sep">/</span><span data-i18n="c_yellow" class="choice-opt">黃</span><span class="choice-sep">/</span><span data-i18n="c_blue" class="choice-opt">藍</span></span></td>
+                    <td class="border border-slate-300 p-1.5 text-center"><span class="choice-group"><span data-i18n="c_pink" class="choice-opt">粉紅</span><span class="choice-sep">/</span><span data-i18n="c_yellow" class="choice-opt">黃</span><span class="choice-sep">/</span><span data-i18n="c_blue" class="choice-opt">藍</span></span></td>
+                    <td class="border border-slate-300 p-1.5 text-center"><span class="choice-group"><span data-i18n="c_high" class="choice-opt">高</span><span class="choice-sep">/</span><span data-i18n="c_mid" class="choice-opt">中</span><span class="choice-sep">/</span><span data-i18n="c_low" class="choice-opt">低</span></span></td>
+                  </tr>
+                  <tr>
+                    <td class="border border-slate-300 p-2 font-bold">LED 5</td>
+                    <td class="border border-slate-300 p-1.5 text-center"><span class="choice-group"><span data-i18n="c_pink" class="choice-opt">粉紅</span><span class="choice-sep">/</span><span data-i18n="c_yellow" class="choice-opt">黃</span><span class="choice-sep">/</span><span data-i18n="c_blue" class="choice-opt">藍</span></span></td>
+                    <td class="border border-slate-300 p-1.5 text-center"><span class="choice-group"><span data-i18n="c_pink" class="choice-opt">粉紅</span><span class="choice-sep">/</span><span data-i18n="c_yellow" class="choice-opt">黃</span><span class="choice-sep">/</span><span data-i18n="c_blue" class="choice-opt">藍</span></span></td>
+                    <td class="border border-slate-300 p-1.5 text-center"><span class="choice-group"><span data-i18n="c_high" class="choice-opt">高</span><span class="choice-sep">/</span><span data-i18n="c_mid" class="choice-opt">中</span><span class="choice-sep">/</span><span data-i18n="c_low" class="choice-opt">低</span></span></td>
+                  </tr>
+                  <tr>
+                    <td class="border border-slate-300 p-2 font-bold">LED 6</td>
+                    <td class="border border-slate-300 p-1.5 text-center"><span class="choice-group"><span data-i18n="c_pink" class="choice-opt">粉紅</span><span class="choice-sep">/</span><span data-i18n="c_yellow" class="choice-opt">黃</span><span class="choice-sep">/</span><span data-i18n="c_blue" class="choice-opt">藍</span></span></td>
+                    <td class="border border-slate-300 p-1.5 text-center"><span class="choice-group"><span data-i18n="c_pink" class="choice-opt">粉紅</span><span class="choice-sep">/</span><span data-i18n="c_yellow" class="choice-opt">黃</span><span class="choice-sep">/</span><span data-i18n="c_blue" class="choice-opt">藍</span></span></td>
+                    <td class="border border-slate-300 p-1.5 text-center"><span class="choice-group"><span data-i18n="c_high" class="choice-opt">高</span><span class="choice-sep">/</span><span data-i18n="c_mid" class="choice-opt">中</span><span class="choice-sep">/</span><span data-i18n="c_low" class="choice-opt">低</span></span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 leading-relaxed">
+              <p data-i18n="s2_pb_q2_hdr" class="font-bold text-slate-800 mb-1">2.【視覺等勢證明】圈出正確節點，說明為何 $V_{R1} = V_{R2} + V_{R3}$：</p>
+              <p class="text-slate-700">
+                <span data-i18n="s2_pb_q2_a">因為 $R_1$ 兩端與 $(R_2 + R_3)$ 支路兩端同樣跨接</span>
+                <span class="choice-group"><span class="choice-opt">LED 4</span><span class="choice-sep">/</span><span class="choice-opt">LED 5</span></span>
+                <span data-i18n="s2_pb_q2_b">與</span>
+                <span class="choice-group"><span class="choice-opt">LED 5</span><span class="choice-sep">/</span><span class="choice-opt">LED 6</span></span><span data-i18n="s2_pb_q2_c">，跨越相同的顏色（電勢）差，故 $V_{R1} = V_{R2} + V_{R3}$。</span>
+              </p>
+              <div data-i18n="s2_pb_key" class="teacher-key mt-2 p-2 rounded bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">
+                <strong>教師參考答案：</strong> LED 4（粉紅／高）、LED 5（黃／中）、LED 6（藍／低）；兩條支路均跨接 <strong>LED 4</strong> 與 <strong>LED 6</strong>。
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 階段 3｜任務二（12–19 分鐘） ==================== -->
+    <section class="task-card rounded-xl border border-slate-300 p-4 sm:p-5 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2.5 mb-3">
+        <h2 class="text-base sm:text-lg font-bold text-purple-900 flex items-start sm:items-center gap-2">
+          <span data-i18n="s3_badge" class="shrink-0 whitespace-nowrap px-2.5 py-0.5 rounded-lg bg-purple-600 text-white text-xs font-bold">階段 3｜任務二</span>
+          <span data-i18n="s3_title">《電路四區圖鑑》情景電壓判斷與歐姆定律應用（7 分鐘）</span>
+        </h2>
+        <span data-i18n="s3_time" class="text-xs font-semibold text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full">Explain｜12–19 分鐘・先定電壓 $\Delta V$，再用 $I = \Delta V / R$</span>
+      </div>
+
+      <div class="q-block space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-purple-50/70 border border-purple-200 rounded-xl px-3.5 py-2 text-xs sm:text-sm">
+          <p data-i18n="s3_tip" class="text-purple-950 font-semibold">
+            <strong>解題口訣：</strong>四區電路均接 $12\text{ V}$ 理想電源（<span class="text-pink-600 font-bold">粉紅 $12\text{ V}$</span>，<span class="text-blue-600 font-bold">藍色 $0\text{ V}$</span>）。請先點擊「演示 LED」觀察色差，定出元件兩端電壓 $\Delta V$，再代入歐姆定律 $I = \Delta V / R$ 計算！
+          </p>
+          <button type="button" onclick="toggleSingleAnswer(this)" class="no-print shrink-0 text-xs px-2.5 py-1 rounded bg-slate-200 text-slate-500 font-semibold transition">🔒 答案已鎖</button>
+        </div>
+
+        <!-- 四區情景 2x2 網格 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+          <!-- 情景 ①：南區（純串聯分壓） -->
+          <div class="p-3.5 rounded-xl bg-rose-50/40 border border-rose-200 space-y-2">
+            <div class="flex items-center justify-between">
+              <span data-i18n="s3_sc1_hdr" class="font-extrabold text-rose-900">情景 ① 南區：純串聯分壓</span>
+              <button type="button" onclick="demoSouth()" data-i18n="btn_demo_s" class="no-print text-[11px] px-2 py-0.5 rounded bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold shadow-sm">演示南區 LED</button>
+            </div>
+            <div class="diagram-box bg-white border border-rose-200 rounded-lg p-2 flex justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 120" class="w-full max-w-[250px] h-auto select-none">
+                <polyline id="s-led1" data-sled="1" data-state="0" points="118,95 45,95 45,32 75,32" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <line id="s-led2" data-sled="2" data-state="0" x1="127" y1="32" x2="155" y2="32" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline id="s-led3" data-sled="3" data-state="0" points="207,32 235,32 235,95 162,95" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline points="122,95 40,95 40,26 75,26" fill="none" stroke="#0f172a" stroke-width="2" />
+                <rect x="75" y="16" width="50" height="20" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.8" />
+                <text x="100" y="30" text-anchor="middle" font-size="10" font-weight="bold">R₁=2Ω</text>
+                <line x1="125" y1="26" x2="157" y2="26" stroke="#0f172a" stroke-width="2" />
+                <rect x="157" y="16" width="50" height="20" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.8" />
+                <text x="182" y="30" text-anchor="middle" font-size="10" font-weight="bold">R₂=4Ω</text>
+                <polyline points="207,26 240,26 240,95 158,95" fill="none" stroke="#0f172a" stroke-width="2" />
+                <line x1="134" y1="85" x2="134" y2="105" stroke="#0f172a" stroke-width="2.2" />
+                <line x1="146" y1="89" x2="146" y2="101" stroke="#0f172a" stroke-width="3.2" />
+                <text x="140" y="116" text-anchor="middle" font-size="10" font-weight="bold">12 V</text>
+              </svg>
+            </div>
+            <p class="text-slate-800 leading-relaxed">
+              <span data-i18n="s3_sc1_p1">總電阻 $6\ \Omega$，總電流 $2\text{ A}$。$R_1$ 分壓 $V_{R1} = IR_1 =$</span> <input type="text" class="inline-blank w-10" /> $\text{V}$<span data-i18n="s3_sc1_p2">，故中間黃色導線電勢為</span> <input type="text" class="inline-blank w-10" /> $\text{V}$<span data-i18n="s3_sc1_p3">，$R_2$ 兩端電壓 $\Delta V_{R2} =$</span> <input type="text" class="inline-blank w-10" /> $\text{V}$<span data-i18n="period">。</span>
+            </p>
+          </div>
+
+          <!-- 情景 ②：東區（並聯分流） -->
+          <div class="p-3.5 rounded-xl bg-amber-50/40 border border-amber-200 space-y-2">
+            <div class="flex items-center justify-between">
+              <span data-i18n="s3_sc2_hdr" class="font-extrabold text-amber-900">情景 ② 東區：並聯等壓與分流</span>
+              <button type="button" onclick="demoEast()" data-i18n="btn_demo_e" class="no-print text-[11px] px-2 py-0.5 rounded bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold shadow-sm">演示東區 LED</button>
+            </div>
+            <div class="diagram-box bg-white border border-amber-200 rounded-lg p-2 flex justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 120" class="w-full max-w-[250px] h-auto select-none">
+                <polyline id="e-led1" data-eled="1" data-state="0" points="118,95 45,95 45,24 105,24" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline id="e-led1b" data-eled="1" points="45,56 105,56" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline id="e-led2" data-eled="2" data-state="0" points="175,24 235,24 235,95 162,95" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline id="e-led2b" data-eled="2" points="175,56 235,56" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline points="122,95 40,95 40,18 110,18" fill="none" stroke="#0f172a" stroke-width="2" />
+                <line x1="40" y1="50" x2="110" y2="50" stroke="#0f172a" stroke-width="2" />
+                <circle cx="40" cy="50" r="2.8" fill="#0f172a" />
+                <rect x="110" y="9" width="60" height="18" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.8" />
+                <text x="140" y="22" text-anchor="middle" font-size="10" font-weight="bold">R₁=6Ω</text>
+                <rect x="110" y="41" width="60" height="18" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.8" />
+                <text x="140" y="54" text-anchor="middle" font-size="10" font-weight="bold">R₂=3Ω</text>
+                <polyline points="170,18 240,18 240,95 158,95" fill="none" stroke="#0f172a" stroke-width="2" />
+                <line x1="170" y1="50" x2="240" y2="50" stroke="#0f172a" stroke-width="2" />
+                <circle cx="240" cy="50" r="2.8" fill="#0f172a" />
+                <line x1="134" y1="85" x2="134" y2="105" stroke="#0f172a" stroke-width="2.2" />
+                <line x1="146" y1="89" x2="146" y2="101" stroke="#0f172a" stroke-width="3.2" />
+                <text x="140" y="116" text-anchor="middle" font-size="10" font-weight="bold">12 V</text>
+              </svg>
+            </div>
+            <p class="text-slate-800 leading-relaxed">
+              <span data-i18n="s3_sc2_p1">兩支路起終點均跨接粉紅與藍，故 $\Delta V_1 = \Delta V_2 =$</span> <input type="text" class="inline-blank w-10" /> $\text{V}$<span data-i18n="s3_sc2_p2">；代入 $I = \Delta V / R$ 得 $I_1 =$</span> <input type="text" class="inline-blank w-10" /> $\text{A}$<span data-i18n="comma">，</span>$I_2 =$ <input type="text" class="inline-blank w-10" /> $\text{A}$<span data-i18n="period">。</span>
+            </p>
+          </div>
+
+          <!-- 情景 ③：北區（混聯與開關 S1 閉合，已加上節點黑點與閉合開關符號） -->
+          <div class="p-3.5 rounded-xl bg-indigo-50/40 border border-indigo-200 space-y-2">
+            <div class="flex items-center justify-between">
+              <span data-i18n="s3_sc3_hdr" class="font-extrabold text-indigo-900">情景 ③ 北區：混聯與開關 $S_1$ 閉合</span>
+              <button type="button" onclick="demoNorth()" data-i18n="btn_demo_n" class="no-print text-[11px] px-2 py-0.5 rounded bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold shadow-sm">演示北區 LED</button>
+            </div>
+            <div class="diagram-box bg-white border border-indigo-200 rounded-lg p-2 flex justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 120" class="w-full max-w-[250px] h-auto select-none">
+                <polyline id="n-led1" data-nled="1" data-state="0" points="118,95 45,95 45,28 75,28" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline id="n-led2" data-nled="2" data-state="0" points="127,28 153,28 153,58 232,58" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline id="n-led2b" data-nled="2" points="207,28 235,28 235,95 162,95" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline points="122,95 40,95 40,22 75,22" fill="none" stroke="#0f172a" stroke-width="2" />
+                <rect x="75" y="12" width="50" height="20" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.8" />
+                <text x="100" y="26" text-anchor="middle" font-size="10" font-weight="bold">L₁=4Ω</text>
+                <line x1="125" y1="22" x2="155" y2="22" stroke="#0f172a" stroke-width="2" />
+                <rect x="155" y="12" width="50" height="20" rx="3" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.8" />
+                <text x="180" y="26" text-anchor="middle" font-size="10" font-weight="bold" fill="#64748b">L₂</text>
+                <!-- 旁路開關 S1（含節點黑點與閉合開關符號） -->
+                <polyline points="145,22 145,64 225,64 225,22" fill="none" stroke="#16a34a" stroke-width="2" />
+                <circle cx="145" cy="22" r="2.8" fill="#0f172a" />
+                <circle cx="225" cy="22" r="2.8" fill="#0f172a" />
+                <circle cx="174" cy="64" r="2.5" fill="#15803d" />
+                <circle cx="196" cy="64" r="2.5" fill="#15803d" />
+                <line x1="174" y1="62" x2="196" y2="62" stroke="#15803d" stroke-width="2.4" />
+                <text data-i18n-svg="svg_s1_closed" x="182" y="77" text-anchor="middle" font-size="7.8" font-weight="bold" fill="#15803d">S₁ 閉合（等勢橋）</text>
+                <polyline points="205,22 240,22 240,95 158,95" fill="none" stroke="#0f172a" stroke-width="2" />
+                <line x1="134" y1="85" x2="134" y2="105" stroke="#0f172a" stroke-width="2.2" />
+                <line x1="146" y1="89" x2="146" y2="101" stroke="#0f172a" stroke-width="3.2" />
+                <text x="140" y="116" text-anchor="middle" font-size="10" font-weight="bold">12 V</text>
+              </svg>
+            </div>
+            <p class="text-slate-800 leading-relaxed">
+              <span data-i18n="s3_sc3_p1">開關 $S_1$ 閉合後將 $L_2$ 兩端連成同色（藍色 $0\text{ V}$），故 $\Delta V_{L2} =$</span> <input type="text" class="inline-blank w-10" /> $\text{V}$<span data-i18n="s3_sc3_p2">；全部 $12\text{ V}$ 集中於 $L_1$（$4\ \Omega$），故幹線電流 $I =$</span> <input type="text" class="inline-blank w-10" /> $\text{A}$<span data-i18n="period">。</span>
+            </p>
+          </div>
+
+          <!-- 情景 ④：西區（經典串並聯混聯） -->
+          <div class="p-3.5 rounded-xl bg-emerald-50/40 border border-emerald-200 space-y-2">
+            <div class="flex items-center justify-between">
+              <span data-i18n="s3_sc4_hdr" class="font-extrabold text-emerald-900">情景 ④ 西區：經典串並聯混聯</span>
+              <button type="button" onclick="demoWest()" data-i18n="btn_demo_w" class="no-print text-[11px] px-2 py-0.5 rounded bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold shadow-sm">演示西區 LED</button>
+            </div>
+            <div class="diagram-box bg-white border border-emerald-200 rounded-lg p-2 flex justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 120" class="w-full max-w-[250px] h-auto select-none">
+                <polyline id="w-led1" data-wled="1" data-state="0" points="118,95 45,95 45,22 72,22" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline id="w-led1b" data-wled="1" points="45,46 72,46" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline id="w-led2" data-wled="2" data-state="0" points="126,22 152,22 152,36 168,36" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline id="w-led2b" data-wled="2" points="126,46 152,46 152,36" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline id="w-led3" data-wled="3" data-state="0" points="218,36 235,36 235,95 162,95" fill="none" stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" class="led-strip" />
+                <polyline points="122,95 40,95 40,16 74,16" fill="none" stroke="#0f172a" stroke-width="2" />
+                <line x1="40" y1="42" x2="74" y2="42" stroke="#0f172a" stroke-width="2" />
+                <circle cx="40" cy="42" r="2.8" fill="#0f172a" />
+                <rect x="74" y="8" width="50" height="16" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.8" />
+                <text x="99" y="19.5" text-anchor="middle" font-size="9.5" font-weight="bold">X=4Ω</text>
+                <rect x="74" y="34" width="50" height="16" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.8" />
+                <text x="99" y="45.5" text-anchor="middle" font-size="9.5" font-weight="bold">Y=4Ω</text>
+                <polyline points="124,16 146,16 146,30 168,30" fill="none" stroke="#0f172a" stroke-width="2" />
+                <polyline points="124,42 146,42 146,30" fill="none" stroke="#0f172a" stroke-width="2" />
+                <circle cx="146" cy="30" r="2.8" fill="#0f172a" />
+                <rect x="168" y="20" width="48" height="20" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.8" />
+                <text x="192" y="33.5" text-anchor="middle" font-size="9.5" font-weight="bold">R₅=2Ω</text>
+                <polyline points="216,30 240,30 240,95 158,95" fill="none" stroke="#0f172a" stroke-width="2" />
+                <line x1="134" y1="85" x2="134" y2="105" stroke="#0f172a" stroke-width="2.2" />
+                <line x1="146" y1="89" x2="146" y2="101" stroke="#0f172a" stroke-width="3.2" />
+                <text x="140" y="116" text-anchor="middle" font-size="10" font-weight="bold">12 V</text>
+              </svg>
+            </div>
+            <p class="text-slate-800 leading-relaxed">
+              <span data-i18n="s3_sc4_p1">$R_{XY} = 2\ \Omega$，總電阻 $4\ \Omega$，總電流 $3\text{ A}$。幹路 $R_5$ 分走電壓 $V_{R5} =$</span> <input type="text" class="inline-blank w-10" /> $\text{V}$<span data-i18n="s3_sc4_p2">（黃節點為 $6\text{ V}$），故並聯區電壓 $\Delta V_{XY} =$</span> <input type="text" class="inline-blank w-10" /> $\text{V}$<span data-i18n="s3_sc4_p3">，支路電流 $I_X =$</span> <input type="text" class="inline-blank w-10" /> $\text{A}$<span data-i18n="period">。</span>
+            </p>
+          </div>
+        </div>
+
+        <div data-i18n="s3_key" class="teacher-key p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 space-y-1">
+          <p><strong>教師參考答案（四區圖鑑）：</strong></p>
+          <p>• <strong>南區：</strong>$V_{R1} = \mathbf{4}\text{ V}$，黃節點 $= \mathbf{8}\text{ V}$，$\Delta V_{R2} = \mathbf{8}\text{ V}$。</p>
+          <p>• <strong>東區：</strong>$\Delta V_1 = \Delta V_2 = \mathbf{12}\text{ V}$，$I_1 = \mathbf{2}\text{ A}$，$I_2 = \mathbf{4}\text{ A}$。</p>
+          <p>• <strong>北區：</strong>$\Delta V_{L2} = \mathbf{0}\text{ V}$，幹線電流 $I = 12 / 4 = \mathbf{3}\text{ A}$。</p>
+          <p>• <strong>西區：</strong>$V_{R5} = 3 \times 2 = \mathbf{6}\text{ V}$，$\Delta V_{XY} = 12 - 6 = \mathbf{6}\text{ V}$，$I_X = 6 / 4 = \mathbf{1.5}\text{ A}$。</p>
+        </div>
+      </div>
+
+      <!-- 短挑戰題 ①（照顧學習差異：支援五色電勢分色拆解跨接電路） -->
+      <div class="q-block mt-4 p-3.5 rounded-xl bg-amber-50/60 border border-amber-300 text-xs sm:text-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <div class="flex items-start sm:items-center gap-2">
+            <span data-i18n="ch1_badge" class="shrink-0 whitespace-nowrap px-2 py-0.5 rounded bg-amber-500 text-white font-extrabold text-xs">短挑戰題 ①</span>
+            <span data-i18n="ch1_title" class="font-bold text-amber-950">照顧學習差異｜巧用「多色 LED 等勢法」拆解跨接電路</span>
+          </div>
+          <div class="no-print flex items-center gap-1.5">
+            <button type="button" onclick="demoChallenge1()" data-i18n="btn_demo_ch1" class="text-xs px-2.5 py-0.5 rounded bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold shadow-sm">演示等勢填色</button>
+            <button type="button" onclick="toggleSingleAnswer(this)" class="text-xs px-2.5 py-0.5 rounded bg-slate-200 text-slate-500 font-semibold transition">🔒 答案已鎖</button>
+          </div>
+        </div>
+
+        <!-- 五色電勢色階提示條 -->
+        <div class="flex flex-wrap items-center gap-1.5 mb-2.5 px-2.5 py-1.5 rounded-lg bg-white border border-amber-200 text-[11px] font-bold">
+          <span data-i18n="scale_hdr" class="text-slate-700 mr-1">五色電勢色階（點擊導線可循環切換）：</span>
+          <span data-i18n="scale_1" class="px-2 py-0.5 rounded bg-pink-100 text-pink-800 border border-pink-300">① 粉紅 (最高)</span>
+          <span class="text-slate-400">→</span>
+          <span data-i18n="scale_2" class="px-2 py-0.5 rounded bg-orange-100 text-orange-800 border border-orange-300">② 橙色 (次高)</span>
+          <span class="text-slate-400">→</span>
+          <span data-i18n="scale_3" class="px-2 py-0.5 rounded bg-yellow-100 text-yellow-800 border border-yellow-300">③ 黃色 (中勢)</span>
+          <span class="text-slate-400">→</span>
+          <span data-i18n="scale_4" class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-300">④ 綠色 (次低)</span>
+          <span class="text-slate-400">→</span>
+          <span data-i18n="scale_5" class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 border border-blue-300">⑤ 藍色 (最低)</span>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
+          <!-- 左側互動 SVG：X — 3Ω — 3Ω — 1.5Ω — Y 跨接電路 -->
+          <div class="diagram-box lg:col-span-5 bg-white border border-amber-200 rounded-lg p-2.5 flex justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 330 124" class="w-full max-w-[310px] h-auto select-none">
+              <!-- X 等勢光條（粉紅：X 左端 -> 上方跨接線 -> 3Ω 與 1.5Ω 之間節點） -->
+              <line id="c1-ledX1" data-c1led="X" data-state="0" x1="28" y1="54" x2="62" y2="54" stroke="#cbd5e1" stroke-width="5.5" stroke-linecap="round" class="led-strip" />
+              <polyline id="c1-ledX2" data-c1led="X" points="51,54 51,22 197,22 197,54" fill="none" stroke="#cbd5e1" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+              <line id="c1-ledX3" data-c1led="X" x1="184" y1="54" x2="216" y2="54" stroke="#cbd5e1" stroke-width="5.5" stroke-linecap="round" class="led-strip" />
+
+              <!-- Y 等勢光條（藍色：3Ω 與 3Ω 之間節點 -> 下方跨接線 -> Y 右端） -->
+              <line id="c1-ledY1" data-c1led="Y" data-state="0" x1="112" y1="68" x2="134" y2="68" stroke="#cbd5e1" stroke-width="5.5" stroke-linecap="round" class="led-strip" />
+              <polyline id="c1-ledY2" data-c1led="Y" points="129,68 129,100 278,100 278,68" fill="none" stroke="#cbd5e1" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+              <line id="c1-ledY3" data-c1led="Y" x1="266" y1="68" x2="302" y2="68" stroke="#cbd5e1" stroke-width="5.5" stroke-linecap="round" class="led-strip" />
+
+              <!-- 電路黑線骨架 -->
+              <circle cx="24" cy="61" r="3" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+              <text x="12" y="65" font-size="11" font-weight="bold" fill="#dc2626">X</text>
+              <line x1="27" y1="61" x2="62" y2="61" stroke="#0f172a" stroke-width="2.2" />
+
+              <!-- 上方跨接導線 -->
+              <polyline points="45,61 45,28 203,28 203,61" fill="none" stroke="#0f172a" stroke-width="2.2" />
+              <circle cx="45" cy="61" r="2.8" fill="#0f172a" />
+
+              <!-- 第一個 3Ω -->
+              <rect x="62" y="50" width="50" height="22" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+              <text x="87" y="65" text-anchor="middle" font-size="11" font-weight="bold">3 Ω</text>
+
+              <line x1="112" y1="61" x2="134" y2="61" stroke="#0f172a" stroke-width="2.2" />
+              <circle cx="123" cy="61" r="2.8" fill="#0f172a" />
+
+              <!-- 第二個 3Ω -->
+              <rect x="134" y="50" width="50" height="22" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+              <text x="159" y="65" text-anchor="middle" font-size="11" font-weight="bold">3 Ω</text>
+
+              <line x1="184" y1="61" x2="216" y2="61" stroke="#0f172a" stroke-width="2.2" />
+              <circle cx="203" cy="61" r="2.8" fill="#0f172a" />
+
+              <!-- 1.5Ω -->
+              <rect x="216" y="50" width="50" height="22" rx="3" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+              <text x="241" y="65" text-anchor="middle" font-size="11" font-weight="bold">1.5 Ω</text>
+
+              <!-- 下方跨接導線 -->
+              <polyline points="123,61 123,94 284,94 284,61" fill="none" stroke="#0f172a" stroke-width="2.2" />
+              <circle cx="284" cy="61" r="2.8" fill="#0f172a" />
+
+              <line x1="266" y1="61" x2="303" y2="61" stroke="#0f172a" stroke-width="2.2" />
+              <circle cx="306" cy="61" r="3" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+              <text x="316" y="65" font-size="11" font-weight="bold" fill="#2563eb">Y</text>
+            </svg>
+          </div>
+
+          <!-- 右側分步思考與答案 -->
+          <div class="lg:col-span-7 space-y-1.5 text-slate-800 leading-relaxed">
+            <p>
+              <span data-i18n="ch1_s1"><strong>Step 1【等勢連線】：</strong>按「演示等勢填色」（或點擊導線）標出與 $\text{X}$ 相連的等勢導線（<span class="text-pink-600 font-bold">粉紅</span>）及與 $\text{Y}$ 相連的等勢導線（<span class="text-blue-600 font-bold">藍色</span>）。可見三個電阻兩端均跨接粉紅與藍色，實際上是</span>
+              <span class="choice-group"><span data-i18n="c_series" class="choice-opt">串聯</span><span class="choice-sep">/</span><span data-i18n="c_parallel" class="choice-opt">並聯</span></span><span data-i18n="period">。</span>
+            </p>
+            <p>
+              <span data-i18n="ch1_s2a"><strong>Step 2【求等效電阻與電流】：</strong>由 $\dfrac{1}{R_{XY}} = \dfrac{1}{3} + \dfrac{1}{3} + \dfrac{1}{1.5}$，得 $R_{XY} =$</span> <input type="text" class="inline-blank w-12" /> $\Omega$<span data-i18n="ch1_s2b">；若 $V_{XY} = 12\text{ V}$，流經 $1.5\ \Omega$ 的電流 $I = \dfrac{12}{1.5} =$</span> <input type="text" class="inline-blank w-10" /> $\text{A}$<span data-i18n="period">。</span>
+            </p>
+            <div data-i18n="ch1_key" class="teacher-key mt-1.5 p-2 rounded bg-emerald-50 border border-emerald-200 text-xs text-emerald-950">
+              <strong>參考答案：</strong> <strong>並聯</strong>；$R_{XY} = \mathbf{0.75}\ \Omega$（即 $\frac{3}{4}\ \Omega$）；流經 $1.5\ \Omega$ 的電流 $= \mathbf{8}\text{ A}$。
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 階段 4｜任務四（19–27 分鐘） ==================== -->
+    <section class="task-card q-block rounded-xl border border-slate-300 p-4 sm:p-5 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2.5 mb-3">
+        <h2 class="text-base sm:text-lg font-bold text-teal-900 flex items-start sm:items-center gap-2">
+          <span data-i18n="s4_badge" class="shrink-0 whitespace-nowrap px-2.5 py-0.5 rounded-lg bg-teal-600 text-white text-xs font-bold">階段 4｜任務四</span>
+          <span data-i18n="s4_title">DSE 實戰破題——等勢分區拆解混聯電路電壓（小組協作・8 分鐘）</span>
+        </h2>
+        <div class="flex items-center gap-2">
+          <span data-i18n="s4_time" class="text-xs font-semibold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-full hidden sm:inline">Elaborate｜19–27 分鐘・無內電阻理想電源</span>
+          <button type="button" onclick="toggleSingleAnswer(this)" class="no-print text-xs px-2.5 py-1 rounded bg-slate-200 text-slate-500 font-semibold transition">🔒 答案已鎖</button>
+        </div>
+      </div>
+
+      <!-- 左文右圖：12 欄網格 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center mb-4">
+        <div class="lg:col-span-5 text-sm text-slate-800 space-y-2 leading-relaxed">
+          <p data-i18n="s4_desc">
+            如右圖，理想電池電壓為 $12\text{ V}$（不設內電阻）；定值電阻 $R_1 = 4.0\ \Omega$、$R_2 = 4.0\ \Omega$ 並聯接於點 $\text{P}$ 與點 $\text{Q}$ 之間，再與幹路電阻 $R_3 = 3.0\ \Omega$ 串聯，理想安培計 $\text{A}$ 量度下支路 $R_2$ 的電流。
+          </p>
+          <p data-i18n="s4_guide" class="text-xs text-teal-950 bg-teal-50 p-2.5 rounded-lg border border-teal-200">
+            <strong>小組行動指引：</strong>先按「演示 LED 顏色」（或點擊光條填色），辨識<span class="text-pink-600 font-bold">粉紅（高電勢 $\text{P}$）</span>、<span class="text-amber-700 font-bold">黃色（中間節點 $\text{Q}$）</span>、<span class="text-blue-600 font-bold">藍色（低電勢 $\text{R}$）</span>三個等勢區，再按三步法計算各區電壓與支路電流！
+          </p>
+        </div>
+
+        <!-- 右側 SVG：三色 LED 混聯實戰電路圖 -->
+        <div class="diagram-box lg:col-span-7 bg-slate-50 border border-slate-200 rounded-xl p-3 flex flex-col items-center">
+          <div class="w-full flex flex-wrap items-center justify-between gap-1.5 px-1 mb-1">
+            <span data-i18n="s4_svg_cap" class="text-xs font-bold text-slate-700">DSE 混聯電路（三色 LED 等勢分區）</span>
+            <button type="button" onclick="demoCircuit4()" data-i18n="btn_demo_led" class="no-print text-xs px-2.5 py-0.5 rounded bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold transition shadow-sm">
+              演示 LED 顏色
+            </button>
+          </div>
+
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 215" class="w-full max-w-[375px] h-auto select-none">
+            <!-- ===== LED 互動光條層 ===== -->
+            <polyline id="ledP" data-t4led="P" data-state="0" points="47,168 47,75 65,75"
+              fill="none" stroke="#cbd5e1" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+            <polyline id="ledP-top" data-t4led="P" points="71,70 71,46 102,46"
+              fill="none" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+            <polyline id="ledP-bot" data-t4led="P" points="71,80 71,104 84,104"
+              fill="none" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+            <line id="ledP-mid" data-t4led="P" x1="112" y1="104" x2="123" y2="104"
+              stroke="#cbd5e1" stroke-width="6" stroke-linecap="round" class="led-strip" />
+
+            <!-- LED-Q (中間節點 Q 段：R1右 & R2右 -> 點 Q -> R3左) -->
+            <polyline id="ledQ-top" data-t4led="Q" points="168,46 199,46 199,70"
+              fill="none" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+            <polyline id="ledQ-bot" data-t4led="Q" points="188,104 199,104 199,80"
+              fill="none" stroke="#cbd5e1" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+            <line id="ledQ" data-t4led="Q" data-state="0" x1="212" y1="68" x2="238" y2="68"
+              stroke="#cbd5e1" stroke-width="6.5" stroke-linecap="round" class="led-strip" />
+
+            <!-- LED-R (低電勢區：R3右 -> 點 R -> 電池負極) -->
+            <line id="ledR-r3" data-t4led="R" x1="306" y1="68" x2="334" y2="68"
+              stroke="#cbd5e1" stroke-width="6.5" stroke-linecap="round" class="led-strip" />
+            <polyline id="ledR" data-t4led="R" data-state="0" points="333,76 333,168 198,168"
+              fill="none" stroke="#cbd5e1" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" class="led-strip" />
+
+            <!-- ===== 電路黑線骨架 ===== -->
+            <line x1="40" y1="175" x2="180" y2="175" stroke="#0f172a" stroke-width="2.4" />
+            <line x1="180" y1="160" x2="180" y2="190" stroke="#0f172a" stroke-width="2.4" />
+            <line x1="194" y1="167" x2="194" y2="183" stroke="#0f172a" stroke-width="3.8" />
+            <line x1="194" y1="175" x2="340" y2="175" stroke="#0f172a" stroke-width="2.4" />
+            <text x="169" y="160" font-size="12" font-weight="bold" fill="#dc2626">+</text>
+            <text x="202" y="160" font-size="13" font-weight="bold" fill="#2563eb">−</text>
+            <text data-i18n-svg="svg_ideal_cell" x="187" y="206" text-anchor="middle" font-size="12" font-weight="bold" fill="#0f172a">理想電池 12 V</text>
+
+            <!-- 點 P -->
+            <polyline points="40,175 40,75 65,75" fill="none" stroke="#0f172a" stroke-width="2.4" />
+            <circle cx="65" cy="75" r="4" fill="#0f172a" />
+            <text x="52" y="66" font-size="13" font-weight="bold" fill="#be185d">P</text>
+
+            <!-- P 到 Q 上支路：R1 = 4.0Ω -->
+            <polyline points="65,75 65,40 105,40" fill="none" stroke="#0f172a" stroke-width="2.4" />
+            <rect x="105" y="28" width="60" height="24" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+            <text x="135" y="44" text-anchor="middle" font-size="11" font-weight="bold" fill="#0f172a">R₁ = 4.0Ω</text>
+            <polyline points="165,40 205,40 205,75" fill="none" stroke="#0f172a" stroke-width="2.4" />
+
+            <!-- P 到 Q 下支路：A + R2 = 4.0Ω -->
+            <polyline points="65,75 65,110 85,110" fill="none" stroke="#0f172a" stroke-width="2.4" />
+            <circle cx="98" cy="110" r="12" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+            <text x="98" y="114" text-anchor="middle" font-size="12" font-weight="bold" fill="#0f172a">A</text>
+            <line x1="110" y1="110" x2="125" y2="110" stroke="#0f172a" stroke-width="2.4" />
+            <rect x="125" y="98" width="60" height="24" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+            <text x="155" y="114" text-anchor="middle" font-size="11" font-weight="bold" fill="#0f172a">R₂ = 4.0Ω</text>
+            <polyline points="185,110 205,110 205,75" fill="none" stroke="#0f172a" stroke-width="2.4" />
+
+            <!-- 點 Q -->
+            <circle cx="205" cy="75" r="4" fill="#0f172a" />
+            <text x="217" y="61" text-anchor="middle" font-size="13" font-weight="bold" fill="#a16207">Q</text>
+
+            <!-- Q 到 R 幹路：R3 = 3.0Ω -->
+            <line x1="205" y1="75" x2="240" y2="75" stroke="#0f172a" stroke-width="2.4" />
+            <rect x="240" y="63" width="64" height="24" rx="4" fill="#ffffff" stroke="#0f172a" stroke-width="2" />
+            <text x="272" y="79" text-anchor="middle" font-size="11" font-weight="bold" fill="#0f172a">R₃ = 3.0Ω</text>
+            <line x1="304" y1="75" x2="340" y2="75" stroke="#0f172a" stroke-width="2.4" />
+
+            <!-- 點 R 與回流線 -->
+            <circle cx="340" cy="75" r="4" fill="#0f172a" />
+            <text x="349" y="66" font-size="13" font-weight="bold" fill="#1d4ed8">R</text>
+            <polyline points="340,75 340,175" fill="none" stroke="#0f172a" stroke-width="2.4" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- 混聯三步法鷹架填空 -->
+      <div class="space-y-3 text-sm">
+        <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+          <p data-i18n="s4_st1_hdr" class="font-bold text-slate-900">步驟一【填色分區與結構判斷】圈出各等勢區顏色及電路關係：</p>
+          <ul class="list-disc pl-5 space-y-1.5 text-slate-800">
+            <li>
+              <span data-i18n="s4_st1_b1a">點 $\text{P}$ 高電勢區為</span>
+              <span class="choice-group"><span data-i18n="c_pink12" class="choice-opt">粉紅 ($12\text{ V}$)</span><span class="choice-sep">/</span><span data-i18n="c_yellow_f" class="choice-opt">黃色</span></span><span data-i18n="s4_st1_b1b">；中間節點 $\text{Q}$ 為</span>
+              <span class="choice-group"><span data-i18n="c_pink" class="choice-opt">粉紅</span><span class="choice-sep">/</span><span data-i18n="c_yellow_f" class="choice-opt">黃色</span><span class="choice-sep">/</span><span data-i18n="c_blue_f" class="choice-opt">藍色</span></span><span data-i18n="s4_st1_b1c">；點 $\text{R}$ 低電勢區為</span>
+              <span class="choice-group"><span data-i18n="c_blue0" class="choice-opt">藍色 ($0\text{ V}$)</span><span class="choice-sep">/</span><span data-i18n="c_yellow_f" class="choice-opt">黃色</span></span><span data-i18n="period">。</span>
+            </li>
+            <li>
+              <span data-i18n="s4_st1_b2a">由於 $R_1$ 與 $R_2$ 兩端同樣跨接點 $\text{P}$ 與點 $\text{Q}$（起終點同色），兩者屬於</span>
+              <span class="choice-group"><span data-i18n="c_parallel" class="choice-opt">並聯</span><span class="choice-sep">/</span><span data-i18n="c_series" class="choice-opt">串聯</span></span><span data-i18n="s4_st1_b2b">，故兩端電壓</span>
+              <span class="choice-group"><span data-i18n="c_equal" class="choice-opt">相等</span><span class="choice-sep">/</span><span data-i18n="c_unequal" class="choice-opt">不相等</span></span><span data-i18n="period">。</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+            <p data-i18n="s4_st2_hdr" class="font-bold text-slate-900">步驟二【求並聯等效電阻與幹路總電流】</p>
+            <p class="text-slate-800"><span data-i18n="s4_st2_1">1. $\text{PQ}$ 並聯等效電阻 $R_{PQ} =$</span> <input type="text" class="inline-blank w-12" /> $\Omega$；</p>
+            <p class="text-slate-800"><span data-i18n="s4_st2_2">2. 全電路總電阻 $R_{\text{總}} = R_{PQ} + R_3 =$</span> <input type="text" class="inline-blank w-12" /> $\Omega$；</p>
+            <p class="text-slate-800"><span data-i18n="s4_st2_3">3. 幹路總電流 $I_{\text{總}} = \dfrac{12}{R_{\text{總}}} =$</span> <input type="text" class="inline-blank w-12" /> $\text{A}$<span data-i18n="period">。</span></p>
+          </div>
+
+          <div class="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-1.5">
+            <p data-i18n="s4_st3_hdr" class="font-bold text-slate-900">步驟三【逐區定電壓，再代入歐姆定律求支流】</p>
+            <p class="text-slate-800"><span data-i18n="s4_st3_1">1. 幹路電阻 $R_3$ 兩端電壓 $V_{R3} = I_{\text{總}} R_3 =$</span> <input type="text" class="inline-blank w-12" /> $\text{V}$；</p>
+            <p class="text-slate-800"><span data-i18n="s4_st3_2a">2. 中間節點 $\text{Q}$ 電勢 $= 12 - V_{R3} =$</span> <input type="text" class="inline-blank w-12" /> $\text{V}$<span data-i18n="s4_st3_2b">，故 $\Delta V_{PQ} =$</span> <input type="text" class="inline-blank w-12" /> $\text{V}$；</p>
+            <p class="text-slate-800"><span data-i18n="s4_st3_3">3. 安培計 $\text{A}$ 讀數（支流）$I_{R2} = \dfrac{\Delta V_{PQ}}{R_2} =$</span> <input type="text" class="inline-blank w-12" /> $\text{A}$<span data-i18n="period">。</span></p>
+          </div>
+        </div>
+
+        <div data-i18n="s4_key" class="teacher-key p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 space-y-1">
+          <p><strong>教師參考答案（任務四）：</strong></p>
+          <p>• <strong>步驟一：</strong>點 $\text{P}$ 為<strong>粉紅（$12\text{ V}$）</strong>、點 $\text{Q}$ 為<strong>黃色</strong>、點 $\text{R}$ 為<strong>藍色（$0\text{ V}$）</strong>；$R_1$ 與 $R_2$ 為<strong>並聯</strong>，兩端電壓<strong>相等</strong>。</p>
+          <p>• <strong>步驟二：</strong>$R_{PQ} = \dfrac{4.0 \times 4.0}{4.0 + 4.0} = \mathbf{2.0}\ \Omega$；$R_{\text{總}} = 2.0 + 3.0 = \mathbf{5.0}\ \Omega$；$I_{\text{總}} = \dfrac{12}{5.0} = \mathbf{2.4}\text{ A}$。</p>
+          <p>• <strong>步驟三：</strong>$V_{R3} = 2.4 \times 3.0 = \mathbf{7.2}\text{ V}$；點 $\text{Q}$ 電勢 $= 12 - 7.2 = \mathbf{4.8}\text{ V}$，故 $\Delta V_{PQ} = \mathbf{4.8}\text{ V}$；$I_{R2} = \dfrac{4.8}{4.0} = \mathbf{1.2}\text{ A}$。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 階段 5｜任務五（27–35 分鐘） ==================== -->
+    <section class="task-card rounded-xl border border-slate-300 p-4 sm:p-5 bg-slate-50/60">
+      <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 pb-2 mb-3">
+        <h2 class="text-base sm:text-lg font-bold text-slate-900 flex items-start sm:items-center gap-2">
+          <span data-i18n="s5_badge" class="shrink-0 whitespace-nowrap px-2.5 py-0.5 rounded-lg bg-rose-600 text-white text-xs font-bold">階段 5｜任務五</span>
+          <span data-i18n="s5_title">終極闖關評估（Exit Ticket）與一句話反思（8 分鐘）</span>
+        </h2>
+        <span data-i18n="s5_time" class="text-xs font-semibold text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-full">Evaluate｜27–35 分鐘</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm mb-3">
+        <!-- 第 1 題：是非判斷 -->
+        <div class="q-block p-3 rounded-lg bg-white border border-slate-200">
+          <div class="flex items-start justify-between gap-2 mb-1.5">
+            <p data-i18n="s5_q1" class="font-bold text-slate-800">1.【是非判斷】在任何電路中，使用歐姆定律 $I = \Delta V / R$ 計算個別電阻的電流前，必須先判斷該電阻兩端的真實電勢差 $\Delta V$，不能直接代入電源總電壓。</p>
+            <button type="button" onclick="toggleSingleAnswer(this)" class="no-print shrink-0 text-xs px-2 py-0.5 rounded bg-slate-200 text-slate-500 font-semibold transition">🔒 答案已鎖</button>
+          </div>
+          <div class="pt-1">
+            <span data-i18n="s5_q1_lbl">判斷：</span><span class="choice-group"><span data-i18n="c_true" class="choice-opt">✔ 正確</span><span class="choice-sep">/</span><span data-i18n="c_false" class="choice-opt">✘ 錯誤</span></span>
+          </div>
+          <div data-i18n="s5_q1_key" class="teacher-key mt-2 p-1.5 rounded bg-emerald-50 border border-emerald-200 text-xs text-emerald-900">
+            <strong>答案：✔ 正確</strong>（只有直接跨接電源正負兩極的元件才承受電源總電壓，其餘元件必須先透過節點等勢分區找出真實 $\Delta V$。）
+          </div>
+        </div>
+
+        <!-- 第 2 題：遊戲通關勾選 -->
+        <div class="p-3 rounded-lg bg-white border border-slate-200 flex flex-col justify-between">
+          <div>
+            <p data-i18n="s5_q2_hdr" class="font-bold text-slate-800 mb-1">2.【限時 6 分鐘】《電路四區圖鑑》網頁遊戲闖關：</p>
+            <p data-i18n="s5_q2_desc" class="text-xs text-slate-600 leading-relaxed mb-2">
+              請掃描教師投屏 QR Code 或前往 <code class="font-mono font-bold text-indigo-700">v5kh2ndvkk-web.github.io/circuit/</code>，運用今日所學的等勢分色法挑戰南區、東區、北區及西區關卡！
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-3 text-xs font-bold text-slate-800 bg-slate-50 p-2 rounded border border-slate-200">
+            <span data-i18n="s5_q2_chk">通關勾選：</span>
+            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" class="accent-indigo-600" /> <span data-i18n="z_south">南區</span></label>
+            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" class="accent-indigo-600" /> <span data-i18n="z_east">東區</span></label>
+            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" class="accent-indigo-600" /> <span data-i18n="z_north">北區</span></label>
+            <label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" class="accent-indigo-600" /> <span data-i18n="z_west">西區</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 第 3 題：一句話反思 -->
+      <div class="p-3 rounded-lg bg-white border border-slate-200 text-sm">
+        <p data-i18n="s5_q3_hdr" class="font-bold text-slate-800 mb-1">3.【一句話反思｜33–35 分鐘】今日學識邊一個判斷電路電壓嘅步驟，最幫到你破解之前 Mock 嘅盲點？</p>
+        <p class="text-slate-700 leading-loose">
+          <span data-i18n="s5_q3_a">以前我做電路題時常常</span> <input type="text" class="inline-blank w-56 sm:w-72 max-w-full" /> <span data-i18n="s5_q3_b">，今日透過等勢分色法我學會了</span> <input type="text" class="inline-blank w-56 sm:w-72 max-w-full" /><span data-i18n="period">。</span>
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 互動腳本（含繁體中文 / English 雙語切換引擎） -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // ==========================================
+      // 0. 雙語字典（Traditional Chinese / English）
+      // ==========================================
+      let currentLang = 'zh';
+
+      const i18nDict = {
+        zh: {
+          doc_title: '電路學生工作紙｜中六級物理科',
+          hdr_title: '電路學生工作紙｜中六級物理科',
+          hdr_sub: '電勢等勢分色、電壓判斷與歐姆定律應用',
+          lang_btn: 'English',
+          demo_all_on: '💡 演示全部 LED 顏色',
+          demo_all_off: '💡 演示全部 LED 顏色',
+          key_locked: '🔒 答案已鎖定（教師解鎖）',
+          key_show: '🔑 顯示全部參考答案',
+          key_hide: '隱藏全部參考答案',
+          relock_key: '🔒 鎖定答案',
+          print_locked: '🔒 列印已鎖定（教師解鎖）',
+          print_unlocked: '🖨️ 列印 / 存為 PDF',
+          relock_print: '🔒 鎖定列印',
+          single_locked: '🔒 答案已鎖',
+          single_show: '顯示答案',
+          single_hide: '隱藏答案',
+          modal_title_ans: '<span>🔒 教師權限解鎖（參考答案）</span>',
+          modal_desc_ans: '為確保建構主義課堂探索效果，參考答案已預設鎖定。請輸入教師密碼（預設：1124）以解鎖「顯示答案」功能：',
+          modal_title_print: '<span>🔒 教師權限解鎖（列印 / 匯出 PDF）</span>',
+          modal_desc_print: '為防止學生於課堂探索期間擅自列印或匯出「電路學生工作紙」，列印功能已預設鎖定。請輸入教師密碼以解鎖：',
+          pin_ph: '請輸入教師密碼',
+          pin_err: '密碼不正確，請重新輸入。',
+          btn_cancel: '取消',
+          btn_confirm: '確認解鎖',
+          print_modal_title: '<span>🖨️ 匯出「電路學生工作紙」</span>',
+          print_modal_desc: '教師權限已解鎖。請選擇匯出或列印方式（所有電路圖、公式及已填寫答案均會完整保留）：',
+          btn_direct_pdf: '📄 一鍵直接下載 A4 PDF 檔案（推薦）',
+          btn_sys_print: '🖨️ 呼叫系統列印對話框',
+          btn_dl_html: '🌐 下載獨立可列印網頁（.html）',
+          ws_badge: 'HKDSE 中六級物理科｜概念重構探索工作紙',
+          ws_title: '電路學生工作紙',
+          ws_meta: '日期：24 / 11 / 2026 ｜ 班別人數：中六（17 人）',
+          ws_topic: '課題：電路分析重構——串／並聯電勢分佈、電壓判斷與歐姆定律應用',
+          lbl_name: '姓名：',
+          ph_name: '填寫姓名',
+          lbl_class: '班別：',
+          val_class: '中六',
+          lbl_no: '學號：',
+          lbl_group: '組別：',
+          ph_group: '第 __ 組',
+          period: '。',
+          comma: '，',
+          // Stage 1
+          s1_badge: '階段 1｜熱身前測',
+          s1_title: '閉合電路構成、大富翁「等勢」類比與概念診斷（3 分鐘）',
+          s1_time: 'Engage｜0–3 分鐘',
+          s1_mono_hdr: '🎲【概念喚醒：大富翁電路類比】對照下圖並完成填空：',
+          s1_svg_cap: '圖解：大富翁棋盤 × 電勢變化對照',
+          s1_btn_demo: '演示等勢色區',
+          svg_mono_charge: '電荷',
+          svg_mono_return: '回程',
+          svg_mono_go: '🚩 起點「GO」＝ 電池 (12 V)',
+          svg_mono_wire1: '🛣️ 空地（理想導線）',
+          svg_mono_eq12: '處處 12 V (等勢 ΔV = 0)',
+          svg_mono_res: '電阻 R',
+          svg_mono_rent: '🏠 物業交租',
+          svg_mono_drop: '消耗電勢能 (12V → 0V)',
+          svg_mono_wire2: '🛣️ 空地（理想導線）',
+          svg_mono_eq0: '處處 0 V (等勢 ΔV = 0)',
+          s1_m1: '<strong>電池作用（起點 GO）：</strong>為電荷提供',
+          c_pe: '電勢能',
+          c_mkq: '製造新電荷',
+          s1_m2: '<strong>等勢路段（空地導線）：</strong>凡由理想導線直接相連、中間未跨過任何電阻或電源的路段，電勢相同（<strong>等勢</strong>），該路段電壓 $\\Delta V =$',
+          s1_m3: '<strong>歸零終點（回到負極）：</strong>電荷經電阻交租消耗電勢能後，回到電池負極時的電勢必降至',
+          s1_mono_key: '<strong>參考答案：</strong> <strong>電勢能</strong>；等勢路段電壓 $\\Delta V = \\mathbf{0}\\text{ V}$；回到負極降至 $\\mathbf{0}\\text{ V}$。',
+          s1_q1: '1. 簡單串聯電路中，電流流經電阻器前後的大小有何關係？',
+          s1_q1_a: '<strong>A.</strong> 經過電阻器後，電流會變小',
+          s1_q1_b: '<strong>B.</strong> 經過電阻器後，電流保持不變',
+          s1_q1_key: '<strong>答案：B</strong>（電荷守恆，串聯路徑中電流處處相等；被消耗的是電勢能而非電流。）',
+          s1_q2: '2. 若理想導線（$R = 0$）中有穩恆電流流過，導線兩端電勢差是多少？',
+          s1_q2_a: '<strong>A.</strong> 大於 $0\\text{ V}$（需要電壓推動電流）',
+          s1_q2_b: '<strong>B.</strong> 等於 $0\\text{ V}$（整段導線為等勢）',
+          s1_q2_key: '<strong>答案：B</strong>（根據 $V = IR$，理想導線 $R = 0$，故電勢差 $V = 0\\text{ V}$，整段導線為等勢。）',
+          // Stage 2
+          s2_badge: '階段 2｜任務一',
+          s2_title: '從串聯到並聯的「三色 LED 等勢地圖」（POE 探索・9 分鐘）',
+          s2_time: 'Explore｜3–12 分鐘・點擊 LED 光條可循環切換顏色',
+          s2_pa_title: 'Part A：教具 ① 串聯電路演示（觀察導線上的 LED 顏色變化）',
+          s2_pa_svg_cap: '教具 ① 串聯電路',
+          btn_demo_led: '演示 LED 顏色',
+          svg_cell: '電池',
+          s2_poe_p_hdr: '1.【預測 Predict】通電前，圈出你的預測：',
+          s2_poe_p1: '三段導線上的 LED 顏色',
+          c_allsame: '全部相同',
+          c_diff: '不相同',
+          s2_poe_p2: '，因為經過電阻時',
+          c_curdec: '電流會變小',
+          c_potdec: '電勢會下降',
+          c_nochange: '沒有變化',
+          s2_poe_o_hdr: '2.【觀察 Observe】通電後，圈出各段 LED 的實際顏色：',
+          c_pink: '粉紅',
+          c_yellow: '黃',
+          c_blue: '藍',
+          s2_poe_o_same: '同一段導線內：',
+          c_uniform: '整段完全同色',
+          c_gradual: '由一端向另一端漸變',
+          s2_poe_e_hdr: '3.【解釋 Explain】圈出正確詞語完成歸納：',
+          s2_poe_e1a: '同一段理想導線呈單一顏色，代表整段處於相同的',
+          c_current: '電流',
+          c_potential: '電勢',
+          s2_poe_e1b: '，稱為<strong>等勢（Equipotential）</strong>。',
+          s2_poe_e2a: '顏色只在跨過',
+          c_wire: '導線',
+          c_resistor: '電阻',
+          s2_poe_e2b: '時改變，故<strong>兩種顏色之差</strong>代表兩點間的',
+          c_curmag: '電流大小',
+          c_pd: '電勢差',
+          s2_poe_e3: '將理想伏特計並聯接在 <code class="font-mono font-bold">LED 1</code> 頭尾兩點上，讀數為',
+          c_emf: '電源電壓',
+          s2_pa_key: '<strong>教師參考答案：</strong> 觀察：LED 1（粉紅）、LED 2（黃）、LED 3（藍），整段完全同色。解釋：<strong>電勢</strong>；<strong>電阻</strong>；<strong>電勢差</strong>；<strong>0 V</strong>。',
+          s2_pb_title: 'Part B：教具 ② 並聯電路（小組白板節點分色挑戰）',
+          s2_pb_svg_cap: '教具 ② 並聯電路',
+          s2_pb_q1: '1.【小組白板預測與實測】圈出 <code class="font-mono">LED 4</code>、<code class="font-mono">LED 5</code>、<code class="font-mono">LED 6</code> 的顏色及電勢高低：',
+          th_seg: '導線段',
+          th_pred: '預測顏色（圈選）',
+          th_obs: '實測顏色（圈選）',
+          th_pot: '電勢高低',
+          c_high: '高',
+          c_mid: '中',
+          c_low: '低',
+          s2_pb_q2_hdr: '2.【視覺等勢證明】圈出正確節點，說明為何 $V_{R1} = V_{R2} + V_{R3}$：',
+          s2_pb_q2_a: '因為 $R_1$ 兩端與 $(R_2 + R_3)$ 支路兩端同樣跨接',
+          s2_pb_q2_b: '與',
+          s2_pb_q2_c: '，跨越相同的顏色（電勢）差，故 $V_{R1} = V_{R2} + V_{R3}$。',
+          s2_pb_key: '<strong>教師參考答案：</strong> LED 4（粉紅／高）、LED 5（黃／中）、LED 6（藍／低）；兩條支路均跨接 <strong>LED 4</strong> 與 <strong>LED 6</strong>。',
+          // Stage 3
+          s3_badge: '階段 3｜任務二',
+          s3_title: '《電路四區圖鑑》情景電壓判斷與歐姆定律應用（7 分鐘）',
+          s3_time: 'Explain｜12–19 分鐘・先定電壓 $\\Delta V$，再用 $I = \\Delta V / R$',
+          s3_tip: '<strong>解題口訣：</strong>四區電路均接 $12\\text{ V}$ 理想電源（<span class="text-pink-600 font-bold">粉紅 $12\\text{ V}$</span>，<span class="text-blue-600 font-bold">藍色 $0\\text{ V}$</span>）。請先點擊「演示 LED」觀察色差，定出元件兩端電壓 $\\Delta V$，再代入歐姆定律 $I = \\Delta V / R$ 計算！',
+          s3_sc1_hdr: '情景 ① 南區：純串聯分壓',
+          btn_demo_s: '演示南區 LED',
+          s3_sc1_p1: '總電阻 $6\\ \\Omega$，總電流 $2\\text{ A}$。$R_1$ 分壓 $V_{R1} = IR_1 =$',
+          s3_sc1_p2: '，故中間黃色導線電勢為',
+          s3_sc1_p3: '，$R_2$ 兩端電壓 $\\Delta V_{R2} =$',
+          s3_sc2_hdr: '情景 ② 東區：並聯等壓與分流',
+          btn_demo_e: '演示東區 LED',
+          s3_sc2_p1: '兩支路起終點均跨接粉紅與藍，故 $\\Delta V_1 = \\Delta V_2 =$',
+          s3_sc2_p2: '；代入 $I = \\Delta V / R$ 得 $I_1 =$',
+          s3_sc3_hdr: '情景 ③ 北區：混聯與開關 $S_1$ 閉合',
+          btn_demo_n: '演示北區 LED',
+          svg_s1_closed: 'S₁ 閉合（等勢橋）',
+          s3_sc3_p1: '開關 $S_1$ 閉合後將 $L_2$ 兩端連成同色（藍色 $0\\text{ V}$），故 $\\Delta V_{L2} =$',
+          s3_sc3_p2: '；全部 $12\\text{ V}$ 集中於 $L_1$（$4\\ \\Omega$），故幹線電流 $I =$',
+          s3_sc4_hdr: '情景 ④ 西區：經典串並聯混聯',
+          btn_demo_w: '演示西區 LED',
+          s3_sc4_p1: '$R_{XY} = 2\\ \\Omega$，總電阻 $4\\ \\Omega$，總電流 $3\\text{ A}$。幹路 $R_5$ 分走電壓 $V_{R5} =$',
+          s3_sc4_p2: '（黃節點為 $6\\text{ V}$），故並聯區電壓 $\\Delta V_{XY} =$',
+          s3_sc4_p3: '，支路電流 $I_X =$',
+          s3_key: '<p><strong>教師參考答案（四區圖鑑）：</strong></p><p>• <strong>南區：</strong>$V_{R1} = \\mathbf{4}\\text{ V}$，黃節點 $= \\mathbf{8}\\text{ V}$，$\\Delta V_{R2} = \\mathbf{8}\\text{ V}$。</p><p>• <strong>東區：</strong>$\\Delta V_1 = \\Delta V_2 = \\mathbf{12}\\text{ V}$，$I_1 = \\mathbf{2}\\text{ A}$，$I_2 = \\mathbf{4}\\text{ A}$。</p><p>• <strong>北區：</strong>$\\Delta V_{L2} = \\mathbf{0}\\text{ V}$，幹線電流 $I = 12 / 4 = \\mathbf{3}\\text{ A}$。</p><p>• <strong>西區：</strong>$V_{R5} = 3 \\times 2 = \\mathbf{6}\\text{ V}$，$\\Delta V_{XY} = 12 - 6 = \\mathbf{6}\\text{ V}$，$I_X = 6 / 4 = \\mathbf{1.5}\\text{ A}$。</p>',
+          // Challenge 1
+          ch1_badge: '短挑戰題 ①',
+          ch1_title: '照顧學習差異｜巧用「多色 LED 等勢法」拆解跨接電路',
+          btn_demo_ch1: '演示等勢填色',
+          scale_hdr: '五色電勢色階（點擊導線可循環切換）：',
+          scale_1: '① 粉紅 (最高)',
+          scale_2: '② 橙色 (次高)',
+          scale_3: '③ 黃色 (中勢)',
+          scale_4: '④ 綠色 (次低)',
+          scale_5: '⑤ 藍色 (最低)',
+          ch1_s1: '<strong>Step 1【等勢連線】：</strong>按「演示等勢填色」（或點擊導線）標出與 $\\text{X}$ 相連的等勢導線（<span class="text-pink-600 font-bold">粉紅</span>）及與 $\\text{Y}$ 相連的等勢導線（<span class="text-blue-600 font-bold">藍色</span>）。可見三個電阻兩端均跨接粉紅與藍色，實際上是',
+          c_series: '串聯',
+          c_parallel: '並聯',
+          ch1_s2a: '<strong>Step 2【求等效電阻與電流】：</strong>由 $\\dfrac{1}{R_{XY}} = \\dfrac{1}{3} + \\dfrac{1}{3} + \\dfrac{1}{1.5}$，得 $R_{XY} =$',
+          ch1_s2b: '；若 $V_{XY} = 12\\text{ V}$，流經 $1.5\\ \\Omega$ 的電流 $I = \\dfrac{12}{1.5} =$',
+          ch1_key: '<strong>參考答案：</strong> <strong>並聯</strong>；$R_{XY} = \\mathbf{0.75}\\ \\Omega$（即 $\\frac{3}{4}\\ \\Omega$）；流經 $1.5\\ \\Omega$ 的電流 $= \\mathbf{8}\\text{ A}$。',
+          // Stage 4
+          s4_badge: '階段 4｜任務四',
+          s4_title: 'DSE 實戰破題——等勢分區拆解混聯電路電壓（小組協作・8 分鐘）',
+          s4_time: 'Elaborate｜19–27 分鐘・無內電阻理想電源',
+          s4_desc: '如右圖，理想電池電壓為 $12\\text{ V}$（不設內電阻）；定值電阻 $R_1 = 4.0\\ \\Omega$、$R_2 = 4.0\\ \\Omega$ 並聯接於點 $\\text{P}$ 與點 $\\text{Q}$ 之間，再與幹路電阻 $R_3 = 3.0\\ \\Omega$ 串聯，理想安培計 $\\text{A}$ 量度下支路 $R_2$ 的電流。',
+          s4_guide: '<strong>小組行動指引：</strong>先按「演示 LED 顏色」（或點擊光條填色），辨識<span class="text-pink-600 font-bold">粉紅（高電勢 $\\text{P}$）</span>、<span class="text-amber-700 font-bold">黃色（中間節點 $\\text{Q}$）</span>、<span class="text-blue-600 font-bold">藍色（低電勢 $\\text{R}$）</span>三個等勢區，再按三步法計算各區電壓與支路電流！',
+          s4_svg_cap: 'DSE 混聯電路（三色 LED 等勢分區）',
+          svg_ideal_cell: '理想電池 12 V',
+          s4_st1_hdr: '步驟一【填色分區與結構判斷】圈出各等勢區顏色及電路關係：',
+          s4_st1_b1a: '點 $\\text{P}$ 高電勢區為',
+          c_pink12: '粉紅 ($12\\text{ V}$)',
+          c_yellow_f: '黃色',
+          s4_st1_b1b: '；中間節點 $\\text{Q}$ 為',
+          c_blue_f: '藍色',
+          s4_st1_b1c: '；點 $\\text{R}$ 低電勢區為',
+          c_blue0: '藍色 ($0\\text{ V}$)',
+          s4_st1_b2a: '由於 $R_1$ 與 $R_2$ 兩端同樣跨接點 $\\text{P}$ 與點 $\\text{Q}$（起終點同色），兩者屬於',
+          s4_st1_b2b: '，故兩端電壓',
+          c_equal: '相等',
+          c_unequal: '不相等',
+          s4_st2_hdr: '步驟二【求並聯等效電阻與幹路總電流】',
+          s4_st2_1: '1. $\\text{PQ}$ 並聯等效電阻 $R_{PQ} =$',
+          s4_st2_2: '2. 全電路總電阻 $R_{\\text{總}} = R_{PQ} + R_3 =$',
+          s4_st2_3: '3. 幹路總電流 $I_{\\text{總}} = \\dfrac{12}{R_{\\text{總}}} =$',
+          s4_st3_hdr: '步驟三【逐區定電壓，再代入歐姆定律求支流】',
+          s4_st3_1: '1. 幹路電阻 $R_3$ 兩端電壓 $V_{R3} = I_{\\text{總}} R_3 =$',
+          s4_st3_2a: '2. 中間節點 $\\text{Q}$ 電勢 $= 12 - V_{R3} =$',
+          s4_st3_2b: '，故 $\\Delta V_{PQ} =$',
+          s4_st3_3: '3. 安培計 $\\text{A}$ 讀數（支流）$I_{R2} = \\dfrac{\\Delta V_{PQ}}{R_2} =$',
+          s4_key: '<p><strong>教師參考答案（任務四）：</strong></p><p>• <strong>步驟一：</strong>點 $\\text{P}$ 為<strong>粉紅（$12\\text{ V}$）</strong>、點 $\\text{Q}$ 為<strong>黃色</strong>、點 $\\text{R}$ 為<strong>藍色（$0\\text{ V}$）</strong>；$R_1$ 與 $R_2$ 為<strong>並聯</strong>，兩端電壓<strong>相等</strong>。</p><p>• <strong>步驟二：</strong>$R_{PQ} = \\dfrac{4.0 \\times 4.0}{4.0 + 4.0} = \\mathbf{2.0}\\ \\Omega$；$R_{\\text{總}} = 2.0 + 3.0 = \\mathbf{5.0}\\ \\Omega$；$I_{\\text{總}} = \\dfrac{12}{5.0} = \\mathbf{2.4}\\text{ A}$。</p><p>• <strong>步驟三：</strong>$V_{R3} = 2.4 \\times 3.0 = \\mathbf{7.2}\\text{ V}$；點 $\\text{Q}$ 電勢 $= 12 - 7.2 = \\mathbf{4.8}\\text{ V}$，故 $\\Delta V_{PQ} = \\mathbf{4.8}\\text{ V}$；$I_{R2} = \\dfrac{4.8}{4.0} = \\mathbf{1.2}\\text{ A}$。</p>',
+          // Stage 5
+          s5_badge: '階段 5｜任務五',
+          s5_title: '終極闖關評估（Exit Ticket）與一句話反思（8 分鐘）',
+          s5_time: 'Evaluate｜27–35 分鐘',
+          s5_q1: '1.【是非判斷】在任何電路中，使用歐姆定律 $I = \\Delta V / R$ 計算個別電阻的電流前，必須先判斷該電阻兩端的真實電勢差 $\\Delta V$，不能直接代入電源總電壓。',
+          s5_q1_lbl: '判斷：',
+          c_true: '✔ 正確',
+          c_false: '✘ 錯誤',
+          s5_q1_key: '<strong>答案：✔ 正確</strong>（只有直接跨接電源正負兩極的元件才承受電源總電壓，其餘元件必須先透過節點等勢分區找出真實 $\\Delta V$。）',
+          s5_q2_hdr: '2.【限時 6 分鐘】《電路四區圖鑑》網頁遊戲闖關：',
+          s5_q2_desc: '請掃描教師投屏 QR Code 或前往 <code class="font-mono font-bold text-indigo-700">v5kh2ndvkk-web.github.io/circuit/</code>，運用今日所學的等勢分色法挑戰南區、東區、北區及西區關卡！',
+          s5_q2_chk: '通關勾選：',
+          z_south: '南區',
+          z_east: '東區',
+          z_north: '北區',
+          z_west: '西區',
+          s5_q3_hdr: '3.【一句話反思｜33–35 分鐘】今日學識邊一個判斷電路電壓嘅步驟，最幫到你破解之前 Mock 嘅盲點？',
+          s5_q3_a: '以前我做電路題時常常',
+          s5_q3_b: '，今日透過等勢分色法我學會了'
+        },
+        en: {
+          doc_title: 'Circuit Student Worksheet | S6 Physics',
+          hdr_title: 'Circuit Student Worksheet | S6 Physics',
+          hdr_sub: 'Equipotential Colour-Coding, Voltage Analysis & Ohm’s Law',
+          lang_btn: '繁體中文',
+          demo_all_on: '💡 Demo All LED Colours',
+          demo_all_off: '💡 Demo All LED Colours',
+          key_locked: '🔒 Key Locked (Teacher)',
+          key_show: '🔑 Show All Answer Keys',
+          key_hide: 'Hide All Answer Keys',
+          relock_key: '🔒 Lock Key',
+          print_locked: '🔒 Print Locked (Teacher)',
+          print_unlocked: '🖨️ Print / Save as PDF',
+          relock_print: '🔒 Lock Print',
+          single_locked: '🔒 Locked',
+          single_show: 'Show Key',
+          single_hide: 'Hide Key',
+          modal_title_ans: '<span>🔒 Teacher Unlock (Answer Key)</span>',
+          modal_desc_ans: 'To preserve constructivist inquiry during class, answer keys are locked by default. Enter the teacher PIN (default: 1124) to unlock:',
+          modal_title_print: '<span>🔒 Teacher Unlock (Print / Export PDF)</span>',
+          modal_desc_print: 'Printing is locked during exploration. Enter the teacher PIN to unlock printing & PDF export:',
+          pin_ph: 'Enter Teacher PIN',
+          pin_err: 'Incorrect PIN. Please try again.',
+          btn_cancel: 'Cancel',
+          btn_confirm: 'Unlock',
+          print_modal_title: '<span>🖨️ Export Student Worksheet</span>',
+          print_modal_desc: 'Teacher permission unlocked. Choose an export or print option (all diagrams, formulas & entered answers are preserved):',
+          btn_direct_pdf: '📄 Direct Download A4 PDF (Recommended)',
+          btn_sys_print: '🖨️ Open System Print Dialog',
+          btn_dl_html: '🌐 Download Standalone Printable Webpage (.html)',
+          ws_badge: 'HKDSE S6 Physics | Conceptual Reconstruction Worksheet',
+          ws_title: 'Circuit Student Worksheet',
+          ws_meta: 'Date: 24 / 11 / 2026 | Class Size: S6 (17 Students)',
+          ws_topic: 'Topic: Circuit Analysis Reconstruction — Series/Parallel Potential Distribution, Voltage & Ohm’s Law',
+          lbl_name: 'Name:',
+          ph_name: 'Enter Name',
+          lbl_class: 'Class:',
+          val_class: 'S6',
+          lbl_no: 'Class No.:',
+          lbl_group: 'Group:',
+          ph_group: 'Group __',
+          period: '.',
+          comma: ', ',
+          // Stage 1
+          s1_badge: 'Stage 1 | Warm-up Pre-test',
+          s1_title: 'Closed Circuit Structure, Monopoly “Equipotential” Analogy & Diagnostic (3 min)',
+          s1_time: 'Engage | 0–3 min',
+          s1_mono_hdr: '🎲 [Concept Activation: Monopoly Circuit Analogy] Refer to the diagram and complete the blanks:',
+          s1_svg_cap: 'Diagram: Monopoly Board × Electric Potential',
+          s1_btn_demo: 'Demo Equipotential Zones',
+          svg_mono_charge: 'Charge',
+          svg_mono_return: 'Return',
+          svg_mono_go: '🚩 "GO" = Battery (12 V)',
+          svg_mono_wire1: '🛣️ Empty Lot (Ideal Wire)',
+          svg_mono_eq12: '12 V everywhere (ΔV = 0)',
+          svg_mono_res: 'Resistor R',
+          svg_mono_rent: '🏠 Pay Rent',
+          svg_mono_drop: 'Energy Spent (12V → 0V)',
+          svg_mono_wire2: '🛣️ Empty Lot (Ideal Wire)',
+          svg_mono_eq0: '0 V everywhere (ΔV = 0)',
+          s1_m1: '<strong>Role of Battery ("GO"):</strong> Supplies charges with',
+          c_pe: 'electric potential energy',
+          c_mkq: 'newly created charges',
+          s1_m2: '<strong>Equipotential Path (Ideal Wire):</strong> Any points directly connected by an ideal wire without crossing a resistor or cell are at the same potential (<strong>equipotential</strong>), so the p.d. across them is $\\Delta V =$',
+          s1_m3: '<strong>Zero-Potential Return (Negative Terminal):</strong> After spending potential energy across the resistor, the potential drops back to',
+          s1_mono_key: '<strong>Answer Key:</strong> <strong>electric potential energy</strong>; equipotential p.d. $\\Delta V = \\mathbf{0}\\text{ V}$; returns to $\\mathbf{0}\\text{ V}$ at the negative terminal.',
+          s1_q1: '1. In a simple series circuit, how does the current compare before and after passing through a resistor?',
+          s1_q1_a: '<strong>A.</strong> Current decreases after passing through the resistor',
+          s1_q1_b: '<strong>B.</strong> Current remains unchanged after passing through the resistor',
+          s1_q1_key: '<strong>Answer: B</strong> (By conservation of charge, current is identical everywhere in a series path; electric potential energy is dissipated, not current.)',
+          s1_q2: '2. If a steady current flows through an ideal connecting wire ($R = 0$), what is the p.d. across its ends?',
+          s1_q2_a: '<strong>A.</strong> Greater than $0\\text{ V}$ (voltage is needed to push current)',
+          s1_q2_b: '<strong>B.</strong> Equal to $0\\text{ V}$ (the entire wire is equipotential)',
+          s1_q2_key: '<strong>Answer: B</strong> (By $V = IR$, since $R = 0$ for an ideal wire, $V = 0\\text{ V}$ and the wire is equipotential.)',
+          // Stage 2
+          s2_badge: 'Stage 2 | Task 1',
+          s2_title: '3-Colour LED Equipotential Map: From Series to Parallel (POE Inquiry · 9 min)',
+          s2_time: 'Explore | 3–12 min · Click LED strips to cycle colours',
+          s2_pa_title: 'Part A: Apparatus ① Series Circuit Demo (Observe LED colour changes along wires)',
+          s2_pa_svg_cap: 'Apparatus ① Series Circuit',
+          btn_demo_led: 'Demo LED Colours',
+          svg_cell: 'Cell',
+          s2_poe_p_hdr: '1. [Predict] Before switching on, circle your prediction:',
+          s2_poe_p1: 'The LED colours on the three wire segments will be',
+          c_allsame: 'all identical',
+          c_diff: 'different',
+          s2_poe_p2: ', because across a resistor',
+          c_curdec: 'current decreases',
+          c_potdec: 'potential drops',
+          c_nochange: 'nothing changes',
+          s2_poe_o_hdr: '2. [Observe] After switching on, circle the actual colour of each LED:',
+          c_pink: 'Pink',
+          c_yellow: 'Yellow',
+          c_blue: 'Blue',
+          s2_poe_o_same: 'Within the same wire segment:',
+          c_uniform: 'completely uniform colour',
+          c_gradual: 'gradually fades from end to end',
+          s2_poe_e_hdr: '3. [Explain] Circle the correct terms to complete the summary:',
+          s2_poe_e1a: 'A single uniform colour along an ideal wire means it has the same',
+          c_current: 'current',
+          c_potential: 'electric potential',
+          s2_poe_e1b: ', known as <strong>equipotential</strong>.',
+          s2_poe_e2a: 'Colour only changes across a',
+          c_wire: 'wire',
+          c_resistor: 'resistor',
+          s2_poe_e2b: ', so a <strong>colour difference</strong> represents the',
+          c_curmag: 'current magnitude',
+          c_pd: 'potential difference',
+          s2_poe_e3: 'Connecting an ideal voltmeter across the two ends of <code class="font-mono font-bold">LED 1</code> gives a reading of',
+          c_emf: 'cell e.m.f.',
+          s2_pa_key: '<strong>Teacher Key:</strong> Observe: LED 1 (Pink), LED 2 (Yellow), LED 3 (Blue), completely uniform colour. Explain: <strong>electric potential</strong>; <strong>resistor</strong>; <strong>potential difference</strong>; <strong>0 V</strong>.',
+          s2_pb_title: 'Part B: Apparatus ② Parallel Circuit (Group Whiteboard Node Colouring Challenge)',
+          s2_pb_svg_cap: 'Apparatus ② Parallel Circuit',
+          s2_pb_q1: '1. [Group Prediction & Observation] Circle the colour and potential level of <code class="font-mono">LED 4</code>, <code class="font-mono">LED 5</code>, and <code class="font-mono">LED 6</code>:',
+          th_seg: 'Wire Segment',
+          th_pred: 'Predicted Colour',
+          th_obs: 'Observed Colour',
+          th_pot: 'Potential Level',
+          c_high: 'High',
+          c_mid: 'Mid',
+          c_low: 'Low',
+          s2_pb_q2_hdr: '2. [Visual Equipotential Proof] Circle the nodes to show why $V_{R1} = V_{R2} + V_{R3}$:',
+          s2_pb_q2_a: 'Because branch $R_1$ and branch $(R_2 + R_3)$ are both connected across',
+          s2_pb_q2_b: 'and',
+          s2_pb_q2_c: ', spanning the exact same colour (potential) difference, hence $V_{R1} = V_{R2} + V_{R3}$.',
+          s2_pb_key: '<strong>Teacher Key:</strong> LED 4 (Pink / High), LED 5 (Yellow / Mid), LED 6 (Blue / Low); both branches span across <strong>LED 4</strong> and <strong>LED 6</strong>.',
+          // Stage 3
+          s3_badge: 'Stage 3 | Task 2',
+          s3_title: 'Four-Zone Circuit Atlas: Voltage Determination & Ohm’s Law (7 min)',
+          s3_time: 'Explain | 12–19 min · Find $\\Delta V$ first, then apply $I = \\Delta V / R$',
+          s3_tip: '<strong>Key Strategy:</strong> All four circuits use an ideal $12\\text{ V}$ cell (<span class="text-pink-600 font-bold">Pink $12\\text{ V}$</span>, <span class="text-blue-600 font-bold">Blue $0\\text{ V}$</span>). Click "Demo LED" to observe colour differences, determine $\\Delta V$ across each component, then apply $I = \\Delta V / R$!',
+          s3_sc1_hdr: 'Scenario ① South Zone: Pure Series Voltage Divider',
+          btn_demo_s: 'Demo South LED',
+          s3_sc1_p1: 'Total resistance $= 6\\ \\Omega$, current $= 2\\text{ A}$. Voltage across $R_1$ is $V_{R1} = IR_1 =$',
+          s3_sc1_p2: ', so the middle yellow wire is at',
+          s3_sc1_p3: ', giving p.d. across $R_2$ as $\\Delta V_{R2} =$',
+          s3_sc2_hdr: 'Scenario ② East Zone: Parallel Equal Voltage & Current Division',
+          btn_demo_e: 'Demo East LED',
+          s3_sc2_p1: 'Both branches span Pink to Blue, so $\\Delta V_1 = \\Delta V_2 =$',
+          s3_sc2_p2: '; using $I = \\Delta V / R$ gives $I_1 =$',
+          s3_sc3_hdr: 'Scenario ③ North Zone: Combined Circuit with Switch $S_1$ Closed',
+          btn_demo_n: 'Demo North LED',
+          svg_s1_closed: 'S₁ Closed (Equipotential)',
+          s3_sc3_p1: 'Closing $S_1$ connects both ends of $L_2$ into one colour (Blue $0\\text{ V}$), so $\\Delta V_{L2} =$',
+          s3_sc3_p2: '; all $12\\text{ V}$ drops across $L_1$ ($4\\ \\Omega$), giving main current $I =$',
+          s3_sc4_hdr: 'Scenario ④ West Zone: Classic Series-Parallel Circuit',
+          btn_demo_w: 'Demo West LED',
+          s3_sc4_p1: '$R_{XY} = 2\\ \\Omega$, $R_{\\text{total}} = 4\\ \\Omega$, $I_{\\text{total}} = 3\\text{ A}$. Main resistor $R_5$ takes $V_{R5} =$',
+          s3_sc4_p2: ' (yellow node at $6\\text{ V}$), so parallel p.d. $\\Delta V_{XY} =$',
+          s3_sc4_p3: ', and branch current $I_X =$',
+          s3_key: '<p><strong>Teacher Key (Four-Zone Atlas):</strong></p><p>• <strong>South:</strong> $V_{R1} = \\mathbf{4}\\text{ V}$, yellow node $= \\mathbf{8}\\text{ V}$, $\\Delta V_{R2} = \\mathbf{8}\\text{ V}$.</p><p>• <strong>East:</strong> $\\Delta V_1 = \\Delta V_2 = \\mathbf{12}\\text{ V}$, $I_1 = \\mathbf{2}\\text{ A}$, $I_2 = \\mathbf{4}\\text{ A}$.</p><p>• <strong>North:</strong> $\\Delta V_{L2} = \\mathbf{0}\\text{ V}$, main current $I = 12 / 4 = \\mathbf{3}\\text{ A}$.</p><p>• <strong>West:</strong> $V_{R5} = 3 \\times 2 = \\mathbf{6}\\text{ V}$, $\\Delta V_{XY} = 12 - 6 = \\mathbf{6}\\text{ V}$, $I_X = 6 / 4 = \\mathbf{1.5}\\text{ A}$.</p>',
+          // Challenge 1
+          ch1_badge: 'Short Challenge ①',
+          ch1_title: 'Learner Diversity | Unfolding Bridged Circuits with Multi-Colour LEDs',
+          btn_demo_ch1: 'Demo Equipotential Fill',
+          scale_hdr: '5-Colour Potential Scale (Click wires to cycle):',
+          scale_1: '① Pink (Highest)',
+          scale_2: '② Orange (2nd High)',
+          scale_3: '③ Yellow (Mid)',
+          scale_4: '④ Green (2nd Low)',
+          scale_5: '⑤ Blue (Lowest)',
+          ch1_s1: '<strong>Step 1 [Equipotential Tracing]:</strong> Click "Demo Equipotential Fill" (or click wires) to mark wires connected to $\\text{X}$ (<span class="text-pink-600 font-bold">Pink</span>) and wires connected to $\\text{Y}$ (<span class="text-blue-600 font-bold">Blue</span>). All three resistors span directly between Pink and Blue, so they are connected in',
+          c_series: 'series',
+          c_parallel: 'parallel',
+          ch1_s2a: '<strong>Step 2 [Equivalent Resistance & Current]:</strong> From $\\dfrac{1}{R_{XY}} = \\dfrac{1}{3} + \\dfrac{1}{3} + \\dfrac{1}{1.5}$, we get $R_{XY} =$',
+          ch1_s2b: '; if $V_{XY} = 12\\text{ V}$, current through the $1.5\\ \\Omega$ resistor is $I = \\dfrac{12}{1.5} =$',
+          ch1_key: '<strong>Answer Key:</strong> <strong>parallel</strong>; $R_{XY} = \\mathbf{0.75}\\ \\Omega$ (i.e. $\\frac{3}{4}\\ \\Omega$); current through $1.5\\ \\Omega = \\mathbf{8}\\text{ A}$.',
+          // Stage 4
+          s4_badge: 'Stage 4 | Task 4',
+          s4_title: 'DSE Exam Application — Deconstructing Combined Circuits by Equipotential Zones (8 min)',
+          s4_time: 'Elaborate | 19–27 min · Ideal Cell (Zero Internal Resistance)',
+          s4_desc: 'As shown on the right, an ideal $12\\text{ V}$ cell (negligible internal resistance) is connected to resistors $R_1 = 4.0\\ \\Omega$ and $R_2 = 4.0\\ \\Omega$ in parallel between $\\text{P}$ and $\\text{Q}$, in series with a main resistor $R_3 = 3.0\\ \\Omega$. An ideal ammeter $\\text{A}$ measures the current in lower branch $R_2$.',
+          s4_guide: '<strong>Group Guide:</strong> Click "Demo LED Colours" (or click strips) to identify the three equipotential zones: <span class="text-pink-600 font-bold">Pink (High $\\text{P}$)</span>, <span class="text-amber-700 font-bold">Yellow (Node $\\text{Q}$)</span>, and <span class="text-blue-600 font-bold">Blue (Low $\\text{R}$)</span>, then follow the 3-step method!',
+          s4_svg_cap: 'DSE Combined Circuit (3-Colour Equipotential Zones)',
+          svg_ideal_cell: 'Ideal Cell 12 V',
+          s4_st1_hdr: 'Step 1 [Zone Colouring & Structure] Circle the colour and circuit relation:',
+          s4_st1_b1a: 'High-potential zone $\\text{P}$ is',
+          c_pink12: 'Pink ($12\\text{ V}$)',
+          c_yellow_f: 'Yellow',
+          s4_st1_b1b: '; middle node $\\text{Q}$ is',
+          c_blue_f: 'Blue',
+          s4_st1_b1c: '; low-potential zone $\\text{R}$ is',
+          c_blue0: 'Blue ($0\\text{ V}$)',
+          s4_st1_b2a: 'Since $R_1$ and $R_2$ both span across nodes $\\text{P}$ and $\\text{Q}$ (identical start & end colours), they are in',
+          s4_st1_b2b: ', so their p.d.s are',
+          c_equal: 'equal',
+          c_unequal: 'unequal',
+          s4_st2_hdr: 'Step 2 [Parallel Equivalent Resistance & Main Current]',
+          s4_st2_1: '1. Parallel equivalent resistance $R_{PQ} =$',
+          s4_st2_2: '2. Total circuit resistance $R_{\\text{total}} = R_{PQ} + R_3 =$',
+          s4_st2_3: '3. Main circuit current $I_{\\text{total}} = \\dfrac{12}{R_{\\text{total}}} =$',
+          s4_st3_hdr: 'Step 3 [Zone Voltage First, Then Branch Current]',
+          s4_st3_1: '1. Voltage across main resistor $R_3$: $V_{R3} = I_{\\text{total}} R_3 =$',
+          s4_st3_2a: '2. Potential at node $\\text{Q} = 12 - V_{R3} =$',
+          s4_st3_2b: ', so $\\Delta V_{PQ} =$',
+          s4_st3_3: '3. Ammeter $\\text{A}$ reading (branch current) $I_{R2} = \\dfrac{\\Delta V_{PQ}}{R_2} =$',
+          s4_key: '<p><strong>Teacher Key (Task 4):</strong></p><p>• <strong>Step 1:</strong> Node $\\text{P}$ is <strong>Pink ($12\\text{ V}$)</strong>, Node $\\text{Q}$ is <strong>Yellow</strong>, Node $\\text{R}$ is <strong>Blue ($0\\text{ V}$)</strong>; $R_1$ and $R_2$ are in <strong>parallel</strong> with <strong>equal</strong> p.d.</p><p>• <strong>Step 2:</strong> $R_{PQ} = \\dfrac{4.0 \\times 4.0}{4.0 + 4.0} = \\mathbf{2.0}\\ \\Omega$; $R_{\\text{total}} = 2.0 + 3.0 = \\mathbf{5.0}\\ \\Omega$; $I_{\\text{total}} = \\dfrac{12}{5.0} = \\mathbf{2.4}\\text{ A}$.</p><p>• <strong>Step 3:</strong> $V_{R3} = 2.4 \\times 3.0 = \\mathbf{7.2}\\text{ V}$; Node $\\text{Q}$ potential $= 12 - 7.2 = \\mathbf{4.8}\\text{ V}$, so $\\Delta V_{PQ} = \\mathbf{4.8}\\text{ V}$; $I_{R2} = \\dfrac{4.8}{4.0} = \\mathbf{1.2}\\text{ A}$.</p>',
+          // Stage 5
+          s5_badge: 'Stage 5 | Task 5',
+          s5_title: 'Exit Ticket Challenge & One-Sentence Reflection (8 min)',
+          s5_time: 'Evaluate | 27–35 min',
+          s5_q1: '1. [True / False] In any circuit, before applying Ohm’s law $I = \\Delta V / R$ to find the current through an individual resistor, we must first determine the true potential difference $\\Delta V$ across that resistor rather than substituting the cell e.m.f. directly.',
+          s5_q1_lbl: 'Verdict: ',
+          c_true: '✔ True',
+          c_false: '✘ False',
+          s5_q1_key: '<strong>Answer: ✔ True</strong> (Only components connected directly across the cell terminals experience the full e.m.f.; all others require finding $\\Delta V$ via equipotential node analysis first.)',
+          s5_q2_hdr: '2. [6-Min Challenge] "Four-Zone Circuit Atlas" Web Game:',
+          s5_q2_desc: 'Scan the projected QR code or visit <code class="font-mono font-bold text-indigo-700">v5kh2ndvkk-web.github.io/circuit/</code> and apply equipotential colour-coding to clear the South, East, North, and West zones!',
+          s5_q2_chk: 'Cleared Zones:',
+          z_south: 'South',
+          z_east: 'East',
+          z_north: 'North',
+          z_west: 'West',
+          s5_q3_hdr: '3. [One-Sentence Reflection | 33–35 min] Which step in determining circuit voltage helped you overcome your previous Mock exam blind spot today?',
+          s5_q3_a: 'Previously, when solving circuit problems, I often',
+          s5_q3_b: '; today, through equipotential colour-coding, I learned how to'
+        }
+      };
+
+      // 五色電勢色階（支援簡單 3 色與複雜 5 色電路）
+      const ledColors = [
+        { zh: '(未亮)', en: '(Off)', stroke: '#cbd5e1' },
+        { zh: '① 粉紅 (最高)', en: '① Pink (High)', stroke: '#ec4899' },
+        { zh: '② 橙色 (次高)', en: '② Orange (2nd)', stroke: '#f97316' },
+        { zh: '③ 黃色 (中勢)', en: '③ Yellow (Mid)', stroke: '#eab308' },
+        { zh: '④ 綠色 (次低)', en: '④ Green (4th)', stroke: '#10b981' },
+        { zh: '⑤ 藍色 (最低)', en: '⑤ Blue (Low)', stroke: '#3b82f6' }
+      ];
+
+      const toastEl = document.getElementById('toastMsg');
+      let toastTimer = null;
+      function showToast(msg) {
+        toastEl.textContent = msg;
+        toastEl.classList.remove('hidden');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toastEl.classList.add('hidden');
+        }, 3200);
+      }
+
+      // 點擊模擬紅筆圈選互動（.choice-opt）
+      document.querySelectorAll('.choice-opt').forEach(opt => {
+        opt.addEventListener('click', () => {
+          const group = opt.closest('.choice-group');
+          const wasCircled = opt.classList.contains('circled');
+          if (group) {
+            group.querySelectorAll('.choice-opt').forEach(sibling => sibling.classList.remove('circled'));
+          }
+          if (!wasCircled) {
+            opt.classList.add('circled');
+          }
+        });
+      });
+
+      // ==========================================
+      // 教師密碼鎖定控制（答案鎖定 + 列印鎖定，預設密碼：1124）
+      // ==========================================
+      let answersLocked = true;
+      let printLocked = true;
+      let unlockContext = 'answers'; // 'answers' | 'print'
+      const TEACHER_PIN = '1124';
+
+      const btnToggleKey = document.getElementById('btnToggleKey');
+      const keyBtnText = document.getElementById('keyBtnText');
+      const btnReLock = document.getElementById('btnReLock');
+      const reLockKeyText = document.getElementById('reLockKeyText');
+
+      const btnPrint = document.getElementById('btnPrint');
+      const printBtnText = document.getElementById('printBtnText');
+      const btnReLockPrint = document.getElementById('btnReLockPrint');
+      const reLockPrintText = document.getElementById('reLockPrintText');
+
+      const unlockModal = document.getElementById('unlockModal');
+      const modalTitleEl = document.getElementById('unlockModalTitle');
+      const modalDescEl = document.getElementById('unlockModalDesc');
+      const pinInput = document.getElementById('pinInput');
+      const pinError = document.getElementById('pinError');
+      const btnCancelUnlock = document.getElementById('btnCancelUnlock');
+      const btnConfirmUnlock = document.getElementById('btnConfirmUnlock');
+      const printModal = document.getElementById('printModal');
+
+      function updateAnswerLockUI() {
+        const dict = i18nDict[currentLang];
+        const singleBtns = document.querySelectorAll('button[onclick="toggleSingleAnswer(this)"]');
+        reLockKeyText.textContent = dict.relock_key;
+
+        if (answersLocked) {
+          document.body.classList.remove('show-answers');
+          document.querySelectorAll('.teacher-key').forEach(k => k.classList.remove('visible'));
+
+          keyBtnText.textContent = dict.key_locked;
+          btnToggleKey.className = 'px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-sm';
+          btnReLock.classList.add('hidden');
+
+          singleBtns.forEach(b => {
+            b.textContent = dict.single_locked;
+            b.classList.remove('bg-emerald-100', 'text-emerald-800', 'hover:bg-emerald-200');
+            b.classList.add('bg-slate-200', 'text-slate-500');
+          });
+        } else {
+          const showingAll = document.body.classList.contains('show-answers');
+          keyBtnText.textContent = showingAll ? dict.key_hide : dict.key_show;
+          btnToggleKey.className = 'px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-sm';
+          btnReLock.classList.remove('hidden');
+
+          singleBtns.forEach(b => {
+            const block = b.closest('.q-block');
+            const keyVisible = block && block.querySelector('.teacher-key.visible');
+            b.textContent = keyVisible ? dict.single_hide : dict.single_show;
+            b.classList.remove('bg-slate-200', 'text-slate-500');
+            b.classList.add('bg-emerald-100', 'text-emerald-800', 'hover:bg-emerald-200');
+          });
+        }
+      }
+
+      function updatePrintLockUI() {
+        const dict = i18nDict[currentLang];
+        reLockPrintText.textContent = dict.relock_print;
+        if (printLocked) {
+          document.body.classList.add('print-locked');
+          printBtnText.textContent = dict.print_locked;
+          btnPrint.className = 'px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-sm';
+          btnReLockPrint.classList.add('hidden');
+        } else {
+          document.body.classList.remove('print-locked');
+          printBtnText.textContent = dict.print_unlocked;
+          btnPrint.className = 'px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm transition flex items-center gap-1.5 shadow-sm';
+          btnReLockPrint.classList.remove('hidden');
+        }
+      }
+
+      updateAnswerLockUI();
+      updatePrintLockUI();
+
+      window.toggleSingleAnswer = function (btn) {
+        const dict = i18nDict[currentLang];
+        if (answersLocked) {
+          showToast(currentLang === 'zh'
+            ? '🔒 答案目前處於鎖定狀態，請先完成探索！'
+            : '🔒 Answer key is currently locked. Complete your exploration first!');
+          return;
+        }
+        const block = btn.closest('.q-block');
+        if (!block) return;
+        const keys = block.querySelectorAll('.teacher-key');
+        let nowVisible = false;
+        keys.forEach(k => {
+          k.classList.toggle('visible');
+          nowVisible = k.classList.contains('visible');
+        });
+        btn.textContent = nowVisible ? dict.single_hide : dict.single_show;
+      };
+
+      function openUnlockModal(context) {
+        const dict = i18nDict[currentLang];
+        unlockContext = context;
+        if (context === 'print') {
+          modalTitleEl.innerHTML = dict.modal_title_print;
+          modalDescEl.textContent = dict.modal_desc_print;
+        } else {
+          modalTitleEl.innerHTML = dict.modal_title_ans;
+          modalDescEl.textContent = dict.modal_desc_ans;
+        }
+        pinInput.placeholder = dict.pin_ph;
+        pinError.textContent = dict.pin_err;
+        btnCancelUnlock.textContent = dict.btn_cancel;
+        btnConfirmUnlock.textContent = dict.btn_confirm;
+        pinInput.value = '';
+        pinError.classList.add('hidden');
+        unlockModal.classList.remove('hidden');
+        unlockModal.classList.add('flex');
+        setTimeout(() => pinInput.focus(), 50);
+      }
+
+      function closeUnlockModal() {
+        unlockModal.classList.add('hidden');
+        unlockModal.classList.remove('flex');
+      }
+
+      btnToggleKey.addEventListener('click', () => {
+        const dict = i18nDict[currentLang];
+        if (answersLocked) {
+          openUnlockModal('answers');
+          return;
+        }
+        document.body.classList.toggle('show-answers');
+        const showing = document.body.classList.contains('show-answers');
+        keyBtnText.textContent = showing ? dict.key_hide : dict.key_show;
+        document.querySelectorAll('.teacher-key').forEach(k => {
+          k.classList.toggle('visible', showing);
+        });
+        document.querySelectorAll('button[onclick="toggleSingleAnswer(this)"]').forEach(b => {
+          b.textContent = showing ? dict.single_hide : dict.single_show;
+        });
+        showToast(showing
+          ? (currentLang === 'zh' ? '已顯示全部教師參考答案' : 'All teacher answer keys shown')
+          : (currentLang === 'zh' ? '已切換為純學生工作紙模式' : 'Switched to student worksheet mode'));
+      });
+
+      btnReLock.addEventListener('click', () => {
+        answersLocked = true;
+        updateAnswerLockUI();
+        showToast(currentLang === 'zh' ? '🔒 已重新鎖定所有參考答案' : '🔒 All answer keys re-locked');
+      });
+
+      btnPrint.addEventListener('click', () => {
+        if (printLocked) {
+          openUnlockModal('print');
+          return;
+        }
+        printModal.classList.remove('hidden');
+        printModal.classList.add('flex');
+      });
+
+      btnReLockPrint.addEventListener('click', () => {
+        printLocked = true;
+        updatePrintLockUI();
+        showToast(currentLang === 'zh' ? '🔒 已重新鎖定列印 / 匯出 PDF 功能' : '🔒 Print / PDF export re-locked');
+      });
+
+      function attemptUnlock() {
+        if (pinInput.value.trim() === TEACHER_PIN) {
+          closeUnlockModal();
+          if (unlockContext === 'print') {
+            printLocked = false;
+            updatePrintLockUI();
+            showToast(currentLang === 'zh'
+              ? '🔓 「電路學生工作紙」列印 / 匯出 PDF 功能已解鎖'
+              : '🔓 Print & PDF export unlocked');
+            printModal.classList.remove('hidden');
+            printModal.classList.add('flex');
+          } else {
+            answersLocked = false;
+            updateAnswerLockUI();
+            showToast(currentLang === 'zh'
+              ? '🔓 教師權限已解鎖，現可點擊「顯示答案」'
+              : '🔓 Teacher permission unlocked. Click "Show Key" to view answers');
+          }
+        } else {
+          pinError.classList.remove('hidden');
+          pinInput.value = '';
+          pinInput.focus();
+        }
+      }
+
+      btnConfirmUnlock.addEventListener('click', attemptUnlock);
+      btnCancelUnlock.addEventListener('click', closeUnlockModal);
+      document.getElementById('btnCloseModal').addEventListener('click', closeUnlockModal);
+      unlockModal.addEventListener('click', (e) => {
+        if (e.target === unlockModal) closeUnlockModal();
+      });
+      pinInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') attemptUnlock();
+        if (e.key === 'Escape') closeUnlockModal();
+      });
+
+      // 攔截鍵盤快捷鍵 Ctrl+P / Cmd+P
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p' && printLocked) {
+          e.preventDefault();
+          showToast(currentLang === 'zh'
+            ? '🔒 列印功能目前已鎖定，請由教師點擊右上角輸入密碼解鎖！'
+            : '🔒 Printing is locked. Please ask the teacher to unlock with PIN!');
+        }
+      });
+
+      // ==========================================
+      // 各階段 LED 光條顏色控制工具
+      // ==========================================
+      function refreshLedLabels() {
+        [1, 2, 3, 4, 5, 6].forEach(num => {
+          const strip = document.getElementById(`led${num}`);
+          const label = document.getElementById(`led${num}-label`);
+          if (strip && label) {
+            const idx = parseInt(strip.getAttribute('data-state') || '0', 10) % ledColors.length;
+            const rawText = ledColors[idx][currentLang];
+            label.textContent = idx === 0 ? rawText : rawText.replace(/^① |② |③ |④ |⑤ /, '');
+          }
+        });
+      }
+
+      function setLedColor(ledNum, stateIndex) {
+        const idx = stateIndex % ledColors.length;
+        const colorObj = ledColors[idx];
+        const mainStrip = document.getElementById(`led${ledNum}`);
+        const label = document.getElementById(`led${ledNum}-label`);
+        if (mainStrip) {
+          mainStrip.setAttribute('data-state', idx);
+          mainStrip.setAttribute('stroke', colorObj.stroke);
+        }
+        if (ledNum === 4) {
+          const branch = document.getElementById('led4-branch');
+          if (branch) branch.setAttribute('stroke', colorObj.stroke);
+        }
+        if (ledNum === 6) {
+          const branch = document.getElementById('led6-branch');
+          if (branch) branch.setAttribute('stroke', colorObj.stroke);
+        }
+        if (label) {
+          const rawText = colorObj[currentLang];
+          label.textContent = idx === 0 ? rawText : rawText.replace(/^① |② |③ |④ |⑤ /, '');
+        }
+      }
+
+      function setGroupLedColor(attrName, key, stateIndex) {
+        const idx = stateIndex % ledColors.length;
+        const stroke = ledColors[idx].stroke;
+        document.querySelectorAll(`[${attrName}="${key}"]`).forEach(el => {
+          el.setAttribute('data-state', idx);
+          el.setAttribute('stroke', stroke);
+        });
+      }
+
+      // 綁定點擊光條循環切換顏色
+      document.querySelectorAll('[data-monoled]').forEach(el => {
+        el.addEventListener('click', () => {
+          const key = el.getAttribute('data-monoled');
+          const cur = parseInt(el.getAttribute('data-state') || '0', 10);
+          setGroupLedColor('data-monoled', key, cur + 1);
+        });
+      });
+
+      [1, 2, 3, 4, 5, 6].forEach(num => {
+        const el = document.getElementById(`led${num}`);
+        if (el) {
+          el.addEventListener('click', () => {
+            const current = parseInt(el.getAttribute('data-state') || '0', 10);
+            setLedColor(num, current + 1);
+          });
+        }
+      });
+      const b4 = document.getElementById('led4-branch');
+      if (b4) b4.addEventListener('click', () => document.getElementById('led4').click());
+      const b6 = document.getElementById('led6-branch');
+      if (b6) b6.addEventListener('click', () => document.getElementById('led6').click());
+
+      ['data-sled', 'data-eled', 'data-nled', 'data-wled', 'data-c1led', 'data-t4led'].forEach(attr => {
+        document.querySelectorAll(`[${attr}]`).forEach(el => {
+          el.addEventListener('click', () => {
+            const key = el.getAttribute(attr);
+            const first = document.querySelector(`[${attr}="${key}"]`);
+            const cur = parseInt(first.getAttribute('data-state') || '0', 10);
+            setGroupLedColor(attr, key, cur + 1);
+          });
+        });
+      });
+
+      // 各圖獨立一鍵演示按鈕（色階索引：1=粉紅, 2=橙色, 3=黃色, 4=綠色, 5=藍色）
+      let monoActive = false;
+      window.demoMonopoly = function () {
+        monoActive = !monoActive;
+        setGroupLedColor('data-monoled', 'high', monoActive ? 1 : 0);
+        setGroupLedColor('data-monoled', 'low', monoActive ? 5 : 0);
+        if (monoActive) {
+          showToast(currentLang === 'zh'
+            ? '大富翁類比：粉紅段處處 12 V（等勢），跨過電阻交租後藍色段處處 0 V！'
+            : 'Monopoly Analogy: Pink segment is 12 V everywhere (equipotential); after resistor, Blue segment is 0 V!');
+        }
+      };
+
+      let c1Active = false;
+      window.demoCircuit1 = function () {
+        c1Active = !c1Active;
+        setLedColor(1, c1Active ? 1 : 0);
+        setLedColor(2, c1Active ? 3 : 0);
+        setLedColor(3, c1Active ? 5 : 0);
+        if (c1Active) {
+          showToast(currentLang === 'zh'
+            ? '教具 ① 已亮燈：粉紅（高電勢）→ 黃（中電勢）→ 藍（低電勢）'
+            : 'Apparatus ① Lit: Pink (High) → Yellow (Mid) → Blue (Low)');
+        }
+      };
+
+      let c2Active = false;
+      window.demoCircuit2 = function () {
+        c2Active = !c2Active;
+        setLedColor(4, c2Active ? 1 : 0);
+        setLedColor(5, c2Active ? 3 : 0);
+        setLedColor(6, c2Active ? 5 : 0);
+        if (c2Active) {
+          showToast(currentLang === 'zh'
+            ? '教具 ② 已亮燈：LED 4 粉紅、LED 5 黃色、LED 6 藍色'
+            : 'Apparatus ② Lit: LED 4 Pink, LED 5 Yellow, LED 6 Blue');
+        }
+      };
+
+      let sActive = false;
+      window.demoSouth = function () {
+        sActive = !sActive;
+        setGroupLedColor('data-sled', '1', sActive ? 1 : 0);
+        setGroupLedColor('data-sled', '2', sActive ? 3 : 0);
+        setGroupLedColor('data-sled', '3', sActive ? 5 : 0);
+      };
+
+      let eActive = false;
+      window.demoEast = function () {
+        eActive = !eActive;
+        setGroupLedColor('data-eled', '1', eActive ? 1 : 0);
+        setGroupLedColor('data-eled', '2', eActive ? 5 : 0);
+      };
+
+      let nActive = false;
+      window.demoNorth = function () {
+        nActive = !nActive;
+        setGroupLedColor('data-nled', '1', nActive ? 1 : 0);
+        setGroupLedColor('data-nled', '2', nActive ? 5 : 0);
+      };
+
+      let wActive = false;
+      window.demoWest = function () {
+        wActive = !wActive;
+        setGroupLedColor('data-wled', '1', wActive ? 1 : 0);
+        setGroupLedColor('data-wled', '2', wActive ? 3 : 0);
+        setGroupLedColor('data-wled', '3', wActive ? 5 : 0);
+      };
+
+      let ch1Active = false;
+      window.demoChallenge1 = function () {
+        ch1Active = !ch1Active;
+        setGroupLedColor('data-c1led', 'X', ch1Active ? 1 : 0);
+        setGroupLedColor('data-c1led', 'Y', ch1Active ? 5 : 0);
+        if (ch1Active) {
+          showToast(currentLang === 'zh'
+            ? '短挑戰題 ①：粉紅（X）與藍色（Y）跨接全部三個電阻，故三者並聯！'
+            : 'Short Challenge ①: Pink (X) and Blue (Y) span across all 3 resistors — they are in parallel!');
+        }
+      };
+
+      let t4Active = false;
+      window.demoCircuit4 = function () {
+        t4Active = !t4Active;
+        setGroupLedColor('data-t4led', 'P', t4Active ? 1 : 0);
+        setGroupLedColor('data-t4led', 'Q', t4Active ? 3 : 0);
+        setGroupLedColor('data-t4led', 'R', t4Active ? 5 : 0);
+        if (t4Active) {
+          showToast(currentLang === 'zh'
+            ? '階段 4 混聯電路：點 P 粉紅（12 V）→ 點 Q 黃色（4.8 V）→ 點 R 藍色（0 V）'
+            : 'Stage 4 Combined Circuit: Node P Pink (12 V) → Node Q Yellow (4.8 V) → Node R Blue (0 V)');
+        }
+      };
+
+      // 頂部全局「演示全部 LED 顏色」按鈕
+      let demoAllActive = false;
+      document.getElementById('btnDemoColors').addEventListener('click', () => {
+        demoAllActive = !demoAllActive;
+        monoActive = c1Active = c2Active = sActive = eActive = nActive = wActive = ch1Active = t4Active = demoAllActive;
+
+        setGroupLedColor('data-monoled', 'high', demoAllActive ? 1 : 0);
+        setGroupLedColor('data-monoled', 'low', demoAllActive ? 5 : 0);
+
+        setLedColor(1, demoAllActive ? 1 : 0); setLedColor(2, demoAllActive ? 3 : 0); setLedColor(3, demoAllActive ? 5 : 0);
+        setLedColor(4, demoAllActive ? 1 : 0); setLedColor(5, demoAllActive ? 3 : 0); setLedColor(6, demoAllActive ? 5 : 0);
+
+        setGroupLedColor('data-sled', '1', demoAllActive ? 1 : 0);
+        setGroupLedColor('data-sled', '2', demoAllActive ? 3 : 0);
+        setGroupLedColor('data-sled', '3', demoAllActive ? 5 : 0);
+
+        setGroupLedColor('data-eled', '1', demoAllActive ? 1 : 0);
+        setGroupLedColor('data-eled', '2', demoAllActive ? 5 : 0);
+
+        setGroupLedColor('data-nled', '1', demoAllActive ? 1 : 0);
+        setGroupLedColor('data-nled', '2', demoAllActive ? 5 : 0);
+
+        setGroupLedColor('data-wled', '1', demoAllActive ? 1 : 0);
+        setGroupLedColor('data-wled', '2', demoAllActive ? 3 : 0);
+        setGroupLedColor('data-wled', '3', demoAllActive ? 5 : 0);
+
+        setGroupLedColor('data-c1led', 'X', demoAllActive ? 1 : 0);
+        setGroupLedColor('data-c1led', 'Y', demoAllActive ? 5 : 0);
+
+        setGroupLedColor('data-t4led', 'P', demoAllActive ? 1 : 0);
+        setGroupLedColor('data-t4led', 'Q', demoAllActive ? 3 : 0);
+        setGroupLedColor('data-t4led', 'R', demoAllActive ? 5 : 0);
+
+        showToast(demoAllActive
+          ? (currentLang === 'zh' ? '已亮起全部電路圖之 LED 等勢分色' : 'All circuit equipotential LED colours illuminated')
+          : (currentLang === 'zh' ? '已重置所有 LED 光條' : 'All LED strips reset'));
+      });
+
+      // ==========================================
+      // 雙語切換執行函式（完整保留填寫內容、圈選與 LED 狀態）
+      // ==========================================
+      async function applyLanguage(lang) {
+        currentLang = lang;
+        const dict = i18nDict[lang];
+        document.documentElement.lang = lang === 'zh' ? 'zh-Hant' : 'en';
+        document.title = dict.doc_title;
+
+        // 1. 更新所有 data-i18n 元素（保留内部互動子節點）
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          if (dict[key] !== undefined) {
+            el.innerHTML = dict[key];
+          }
+        });
+
+        // 2. 更新 SVG 文字標籤
+        document.querySelectorAll('[data-i18n-svg]').forEach(el => {
+          const key = el.getAttribute('data-i18n-svg');
+          if (dict[key] !== undefined) {
+            el.textContent = dict[key];
+          }
+        });
+
+        // 3. 更新輸入框佔位符與預設班別名稱
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(inp => {
+          const key = inp.getAttribute('data-i18n-placeholder');
+          if (dict[key] !== undefined) {
+            inp.setAttribute('placeholder', dict[key]);
+          }
+        });
+        const inpClass = document.getElementById('inpClass');
+        if (inpClass && (inpClass.value === '中六' || inpClass.value === 'S6')) {
+          inpClass.value = dict.val_class;
+        }
+
+        // 4. 更新頂部工具列按鈕與 LED 狀態標籤
+        document.getElementById('langBtnText').textContent = dict.lang_btn;
+        document.getElementById('demoAllBtnText').textContent = dict.demo_all_on;
+        updateAnswerLockUI();
+        updatePrintLockUI();
+        refreshLedLabels();
+
+        // 5. 重新渲染 MathJax 公式
+        if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+          try {
+            if (typeof window.MathJax.typesetClear === 'function') {
+              window.MathJax.typesetClear([document.body]);
+            }
+            await window.MathJax.typesetPromise([document.body]);
+          } catch (e) {
+            // 忽略渲染警告
+          }
+        }
+      }
+
+      document.getElementById('btnToggleLang').addEventListener('click', async () => {
+        const nextLang = currentLang === 'zh' ? 'en' : 'zh';
+        await applyLanguage(nextLang);
+        showToast(nextLang === 'en'
+          ? '🌐 Switched to English version'
+          : '🌐 已切換為繁體中文版');
+      });
+
+      // ==========================================
+      // PDF 匯出與列印視窗邏輯（解鎖後可用）
+      // ==========================================
+      function closePrintModal() {
+        printModal.classList.add('hidden');
+        printModal.classList.remove('flex');
+      }
+
+      document.getElementById('btnClosePrintModal').addEventListener('click', closePrintModal);
+      printModal.addEventListener('click', (e) => {
+        if (e.target === printModal) closePrintModal();
+      });
+
+      // 將單個 SVG 元素轉為高解析度 Canvas（確保 html2pdf 100% 完整保留電路圖與 MathJax 公式）
+      function svgToCanvas(svgEl, fallbackW, fallbackH) {
+        return new Promise((resolve) => {
+          try {
+            const cloneSvg = svgEl.cloneNode(true);
+            cloneSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+            cloneSvg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+
+            let w = fallbackW;
+            let h = fallbackH;
+            if (!w || !h || w < 1 || h < 1) {
+              const vb = (svgEl.getAttribute('viewBox') || '').trim().split(/[\s,]+/);
+              if (vb.length === 4) {
+                w = parseFloat(vb[2]) || 240;
+                h = parseFloat(vb[3]) || 120;
+              } else {
+                w = parseFloat(svgEl.getAttribute('width')) || 24;
+                h = parseFloat(svgEl.getAttribute('height')) || 16;
+              }
+            }
+
+            const computed = window.getComputedStyle(svgEl);
+            if (!cloneSvg.style.fontFamily) {
+              cloneSvg.style.fontFamily = computed.fontFamily || "'Inter', 'Noto Sans TC', sans-serif";
+            }
+            if (!cloneSvg.style.color && computed.color) {
+              cloneSvg.style.color = computed.color;
+            }
+            cloneSvg.setAttribute('width', w);
+            cloneSvg.setAttribute('height', h);
+
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(cloneSvg);
+            const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+
+            const img = new Image();
+            img.onload = () => {
+              const scale = 2.5;
+              const canvas = document.createElement('canvas');
+              canvas.width = Math.max(1, Math.round(w * scale));
+              canvas.height = Math.max(1, Math.round(h * scale));
+              canvas.style.width = w + 'px';
+              canvas.style.height = h + 'px';
+              canvas.style.display = svgEl.closest('mjx-container') ? 'inline-block' : 'block';
+              canvas.style.verticalAlign = svgEl.closest('mjx-container') ? 'middle' : 'baseline';
+              canvas.style.maxWidth = '100%';
+              canvas.style.height = 'auto';
+
+              const ctx = canvas.getContext('2d');
+              ctx.scale(scale, scale);
+              ctx.drawImage(img, 0, 0, w, h);
+              URL.revokeObjectURL(url);
+              resolve(canvas);
+            };
+            img.onerror = () => {
+              URL.revokeObjectURL(url);
+              resolve(null);
+            };
+            img.src = url;
+          } catch (e) {
+            resolve(null);
+          }
+        });
+      }
+
+      // 方式一：一鍵直接下載 A4 PDF 檔案
+      document.getElementById('btnDirectPdf').addEventListener('click', async () => {
+        closePrintModal();
+        const sourceEl = document.getElementById('worksheetMain');
+        if (typeof html2pdf === 'undefined' || !sourceEl) {
+          showToast(currentLang === 'zh'
+            ? '⚠️ 正在載入 PDF 元件，請稍後再試或使用系統列印。'
+            : '⚠️ PDF module loading. Please try again shortly or use System Print.');
+          return;
+        }
+
+        showToast(currentLang === 'zh'
+          ? '⏳ 正在產生高畫質 A4 PDF 工作紙，請稍候...'
+          : '⏳ Generating high-resolution A4 PDF worksheet, please wait...');
+        let offscreenHost = null;
+
+        try {
+          if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+            await window.MathJax.typesetPromise([sourceEl]);
+          }
+
+          const origSvgs = Array.from(sourceEl.querySelectorAll('svg'));
+          const origSizes = origSvgs.map(svg => {
+            const rect = svg.getBoundingClientRect();
+            return { width: rect.width, height: rect.height };
+          });
+
+          offscreenHost = document.createElement('div');
+          offscreenHost.style.position = 'fixed';
+          offscreenHost.style.left = '-10000px';
+          offscreenHost.style.top = '0';
+          offscreenHost.style.width = '760px';
+          offscreenHost.style.background = '#ffffff';
+          offscreenHost.style.zIndex = '-1';
+
+          const cloneEl = sourceEl.cloneNode(true);
+          cloneEl.removeAttribute('id');
+          cloneEl.classList.add('pdf-export-clone');
+          offscreenHost.appendChild(cloneEl);
+          document.body.appendChild(offscreenHost);
+
+          cloneEl.querySelectorAll('.no-print').forEach(el => el.remove());
+
+          const origInputs = Array.from(sourceEl.querySelectorAll('input[type="text"]'));
+          const cloneInputs = Array.from(cloneEl.querySelectorAll('input[type="text"]'));
+          cloneInputs.forEach((inp, idx) => {
+            const val = origInputs[idx] ? origInputs[idx].value.trim() : '';
+            const span = document.createElement('span');
+            span.className = 'pdf-blank-line';
+            if (inp.classList.contains('w-full')) {
+              span.style.width = '100%';
+            } else if (inp.classList.contains('w-56') || inp.classList.contains('sm:w-72')) {
+              span.style.minWidth = '180px';
+            } else if (inp.classList.contains('w-12')) {
+              span.style.minWidth = '46px';
+            } else {
+              span.style.minWidth = '38px';
+            }
+            span.textContent = val || '\u00A0';
+            inp.replaceWith(span);
+          });
+
+          const origChecks = Array.from(sourceEl.querySelectorAll('input[type="radio"], input[type="checkbox"]'));
+          const cloneChecks = Array.from(cloneEl.querySelectorAll('input[type="radio"], input[type="checkbox"]'));
+          cloneChecks.forEach((chk, idx) => {
+            const isChecked = origChecks[idx] ? origChecks[idx].checked : false;
+            const isRadio = chk.type === 'radio';
+            const sym = document.createElement('span');
+            sym.className = 'pdf-check-symbol';
+            sym.textContent = isRadio ? (isChecked ? '◉' : '○') : (isChecked ? '☑' : '☐');
+            chk.replaceWith(sym);
+          });
+
+          const cloneSvgs = Array.from(cloneEl.querySelectorAll('svg'));
+          for (let i = 0; i < cloneSvgs.length; i++) {
+            const cSvg = cloneSvgs[i];
+            const size = origSizes[i] || { width: 0, height: 0 };
+            const canvas = await svgToCanvas(cSvg, size.width, size.height);
+            if (canvas) {
+              cSvg.replaceWith(canvas);
+            }
+          }
+
+          const opt = {
+            margin: [8, 8, 8, 8],
+            filename: currentLang === 'zh'
+              ? '電路學生工作紙_電勢與歐姆定律.pdf'
+              : 'Circuit_Student_Worksheet_Potential_Ohms_Law.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: {
+              scale: 2,
+              useCORS: true,
+              logging: false,
+              backgroundColor: '#ffffff'
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+            pagebreak: {
+              mode: ['css', 'legacy'],
+              avoid: ['.q-block', '.diagram-box', 'tr']
+            }
+          };
+
+          await html2pdf().set(opt).from(cloneEl).save();
+          showToast(currentLang === 'zh'
+            ? '✅ 「電路學生工作紙」A4 PDF 已成功下載！'
+            : '✅ A4 PDF worksheet downloaded successfully!');
+        } catch (err) {
+          showToast(currentLang === 'zh'
+            ? '⚠️ PDF 轉換受限，請改用「下載獨立網頁」開啟後列印。'
+            : '⚠️ PDF export restricted here. Please use "Download Standalone Webpage" and print from browser.');
+        } finally {
+          if (offscreenHost && offscreenHost.parentNode) {
+            offscreenHost.parentNode.removeChild(offscreenHost);
+          }
+        }
+      });
+
+      // 方式二：呼叫瀏覽器系統列印
+      document.getElementById('btnSystemPrint').addEventListener('click', () => {
+        closePrintModal();
+        setTimeout(() => {
+          try {
+            window.print();
+          } catch (e) {
+            showToast(currentLang === 'zh'
+              ? '⚠️ 預覽環境已停用系統列印，請按「一鍵直接下載 A4 PDF 檔案」。'
+              : '⚠️ System print disabled in preview. Please use "Direct Download A4 PDF".');
+          }
+        }, 120);
+      });
+
+      // 方式三：下載保留已填寫作答內容的獨立網頁 (.html)
+      document.getElementById('btnDownloadStandalone').addEventListener('click', () => {
+        closePrintModal();
+        document.querySelectorAll('input[type="text"]').forEach(inp => {
+          inp.setAttribute('value', inp.value);
+        });
+        document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(chk => {
+          if (chk.checked) chk.setAttribute('checked', 'checked');
+          else chk.removeAttribute('checked');
+        });
+        // 確保下載的獨立網頁已解除 print-locked，方便開啟即印
+        const wasLocked = document.body.classList.contains('print-locked');
+        document.body.classList.remove('print-locked');
+        const htmlContent = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        if (wasLocked) document.body.classList.add('print-locked');
+
+        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = currentLang === 'zh'
+          ? '電路學生工作紙_已填寫版.html'
+          : 'Circuit_Student_Worksheet_Completed.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(currentLang === 'zh'
+          ? '✅ 已下載獨立網頁！於瀏覽器開啟即可直接列印或存為 PDF。'
+          : '✅ Standalone webpage downloaded! Open in any browser to print or save as PDF.');
+      });
+    });
+  </script>
+</body>
+</html>
